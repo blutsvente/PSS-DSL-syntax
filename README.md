@@ -1,4 +1,4 @@
-# PSS-syntax
+# PSS-DSL-syntax
 PSS DSL (Portable Stimulus Specification domain-specific language) syntax for Sublime Text 3+4.
 
 ## Manual Install
