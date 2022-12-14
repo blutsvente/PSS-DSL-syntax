@@ -1,0 +1,50 @@
+import bingo::*;
+
+pure component c1 {
+
+}
+
+package  foo::outer{
+   import zippo::* as zp;
+
+   component c2  : base : pkg::basebase {
+
+   }
+
+   extend component c2 {
+
+   }
+   package inner {
+   }
+}
+
+component x1 {
+
+   abstract  action  a1 : base_action  {
+
+   }
+
+   extend action a1 {
+      activity {
+
+      }
+   }
+
+   buffer mem_buffer : base_buffer {
+
+   }
+}
+
+abstract action a2 {
+   // Can define abstract action in package scope!
+}
+
+extend action a3 {
+   // Can extend actions in package scope!
+}
+
+
+
+
+
+// end

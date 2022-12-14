@@ -7,45 +7,557 @@ file_extensions:
 scope: source.pss
 version: 2
 
+# Syntax for the PSS domain-specific-language
 # Note: Numbered comments refer to chapters in the PSS Specification 2.0
 # See also: https://www.sublimetext.com/docs/3/syntax.html and https://www.sublimetext.com/docs/3/scope_naming.html
+# Note:  Ctrl+Alt+Shift+P (Windows/Linux) -> scope under caret
+
+variables:
+  scalar_types: int|bit|string|bool|enum
+  collection_types: array|list|map|set
+  built_in_types: ({{scalar_types}}|{{collection_types}})
+  built_in_constants: null|true|false
+  access: public|protected|private
+  attribs: rand|static|const
+  exec_kinds: pre_solve|post_solve|body|header|declaration|run_start|run_end|init_down|init_up|init
+  object_kinds: buffer|stream|state|resource
+  bin_digit: '[0-1]'
+  oct_digit: '[0-7]'
+  dec_digit: \d
+  hex_digit: '[0-9a-fA-F]'
+  dec_number: ({{dec_digit}}+)
+  escaped_char: \\n|\\t|\\f|\\"|\\\\|\\r|\\t|\\f|\\"|\\'|\\\\|\\r|\\a|\\b|\\v|\\\[0-7\]\[0-7\]\[0-7\]
+  # Tags in comment.line that will be highlighted
+  comment_tags: 'TODO:?|DEBUG:?|FIXME:?|BAUSTELLE:?|TBD:?'
+  invalid_names: '{{access}}|{{attribs}}'
+  # Valid name that can also be a hierarchical reference
+  valid_name: ([a-zA-Z](?:[a-zA-Z0-9_.:]+)?(?<!{{invalid_names}}))
+  # Simple valid identifier
+  valid_id: ([a-zA-Z](?:[a-zA-Z0-9_]+)?(?<!{{invalid_names}}))
+  super_spec: \:\s*{{valid_name}}
+  scalar_range_modifier: '\bin\s*\[[a-zA-Z0-9_\.,]+\]'
+  scalar_width_modifier: '\[\s*\S+\s*:\s*0\]'
+  valid_scalar_type: ({{scalar_types}})(\s*{{scalar_range_modifier}})?
+  valid_access: (?:{{access}})
+  valid_attribs: (?:(?:{{attribs}})\s+)
+  valid_attribs_no_rand: (?:(?:static|const)\s+)
 
 contexts:
   main:
-    # Strings begin and end with quotes, and use backslashes as an escape
-    # character
-    - match: '"'
-      scope: punctuation.definition.string.begin.example-c
-      push: double_quoted_string
+   - include: imports
+   - include: package
+   - include: action-abstract-declaration
+   - include: action-extend-declaration
+   - include: enum-declaration
+   - include: components
+   - include: structs
+   - include: code
 
-    # Comments begin with a '//' and finish at the end of the line
-    - match: '//'
-      scope: punctuation.definition.comment.example-c
-      push: line_comment
+  # Include comments in all scopes (except strings, see below)
+  prototype:
+    - include: comments
 
-    # Keywords are if, else for and while.
-    # Note that blackslashes don't need to be escaped within single quoted
-    # strings in YAML. When using single quoted strings, only single quotes
-    # need to be escaped: this is done by using two single quotes next to each
-    # other.
-    - match: '\b(if|else|for|while)\b'
-      scope: keyword.control.example-c
+  imports:
+    - match: \b(import)\s+(.*)(;)
+      captures:
+        1: keyword.control.import.pss
+        2: entity.name.pss
+        4: punctuation.terminator.pss
 
-    # Numbers
-    - match: '\b(-)?[0-9.]+\b'
-      scope: constant.numeric.example-c
+  # B.1 Package
+  package:
+  # Note: extensions may appear in (global unnamed) package and component decls
+    - match: \b(package)\s+\b{{valid_name}}\b\s*(\{)
+      captures:
+        1: keyword.declaration.namespace.pss
+        2: entity.name.pss
+        3: punctuation.section.begin.pss
+      push: package-declaration
 
-  double_quoted_string:
-    - meta_scope: string.quoted.double.example-c
-    - match: '\\.'
-      scope: constant.character.escape.example-c
-    - match: '"'
-      scope: punctuation.definition.string.end.example-c
+  package-declaration:
+    - meta_scope: meta.package.declaration.pss
+    - match: (\})
+      captures:
+        1: punctuation.section.end.pss
+      pop: true
+    - include: main
+
+  # B.8 Component
+  # TODO: template_param_decl_list
+  # TODO: curly-brace in next line
+  components:
+    - match: (?=^\s*(pure\b)?\s*\bcomponent\s+\b{{valid_name}}(\s*{{super_spec}})*\s*\{)
+      push: component-declaration
+    - match: (?=^\s*extend\s*\bcomponent\s+\b{{valid_name}}\b\s*\{)
+      push: component-declaration
+
+#      push:
+#        - match: '(\{)'
+#          captures:
+#            1: punctuation.section.begin.pss
+#          set: exec-body
+
+  component-declaration:
+    - meta_scope: meta.class.declaration.pss
+    - match: (pure\b)?\s*\b(component)\s+{{valid_name}}\b(?:\s*{{super_spec}})*\s*(\{)
+      captures:
+        1: keyword.declaration.pure.pss
+        2: keyword.declaration.class.pss
+        3: entity.name.class.pss
+        4: entity.name.superclasses.pss
+        5: punctuation.section.begin.pss
+      set:
+        - meta_content_scope: meta.class.body.pss
+        - match: (\})
+          captures:
+            1: punctuation.section.end.pss
+          pop: true
+        - include: actions
+        - include: enum-declaration
+        - include: structs
+        - include: exec-blocks
+        - include: code
+
+    - match: (extend)\s*\b(component)\s+\b{{valid_name}}\b\s*(\{)
+      captures:
+        1: keyword.declaration.extend.pss
+        2: keyword.declaration.class.pss
+        3: entity.name.class.pss
+        4: punctuation.section.begin.pss
+      set:
+        - meta_content_scope: meta.class.body.pss
+        - match: (\})
+          captures:
+            1: punctuation.section.end.pss
+          pop: true
+        - include: actions
+        - include: enum-declaration
+        - include: structs
+        - include: exec-blocks
+        - include: code
+
+  # B.2 Action
+  # note: abstract action declarations and extensions appear also in package scope
+  # TODO: curly-brace in next line
+  actions:
+    - match: (?=^\s*\babstract\s+\baction\s+\b{{valid_name}}\b(\s*{{super_spec}})*\s*\{)
+      push: action-abstract-declaration
+    - match: (?=^\s*\baction\s+\b{{valid_name}}\b(\s*{{super_spec}})*\s*\{)
+      push: action-declaration
+    - match: (?=^\s*extend\s*\baction\s+\b{{valid_name}}\b\s*\{)
+      push: action-extend-declaration
+
+  action-abstract-declaration:
+    - meta_scope: meta.action.declaration.pss
+    - match: \b(abstract)\s*\b(action)\s+\b{{valid_name}}\b(?:\s*{{super_spec}})*\s*(\{)
+      captures:
+        1: keyword.declaration.abstract.pss
+        2: keyword.declaration.action.pss
+        3: entity.name.action.pss
+        4: entity.name.superactions.pss
+        5: punctuation.section.begin.pss
+      set:
+        - meta_content_scope: meta.action.body.pss
+        - match: (\})
+          captures:
+            1: punctuation.section.end.pss
+          pop: true
+        - include: activity
+        - include: exec-blocks
+        - include: code
+
+  action-declaration:
+    - meta_scope: meta.action.declaration.pss
+    - match: \b(action)\s+\b{{valid_name}}\b(?:\s*{{super_spec}})*\s*(\{)
+      captures:
+        1: keyword.declaration.action.pss
+        2: entity.name.action.pss
+        3: entity.name.superactions.pss
+        4: punctuation.section.begin.pss
+      set:
+        - meta_content_scope: meta.action.body.pss
+        - match: (\})
+          captures:
+            1: punctuation.section.end.pss
+          pop: true
+        - include: activity
+        - include: exec-blocks
+        - include: code
+
+  action-extend-declaration:
+    - match: (extend)\s*\b(action)\s+\b{{valid_name}}\b\s*(\{)
+      captures:
+        1: keyword.declaration.extend.pss
+        2: keyword.declaration.action.pss
+        3: entity.name.action.pss
+        4: punctuation.section.begin.pss
+      set:
+        - meta_content_scope: meta.action.body.pss
+        - match: (\})
+          captures:
+            1: punctuation.section.end.pss
+          pop: true
+        - include: activity
+        - include: exec-blocks
+        - include: code
+
+  # TODO: curly-brace in next line
+  activity:
+    - meta_scope: meta.activity.declaration.pss
+    - match: ^\s*(activity)\s*(\{)
+      captures:
+        1: keyword.declaration.activity.pss
+        2: punctuation.section.begin.pss
+      push: activity-statement
+
+  activity-statement:
+    - meta_scope: meta.activity.body.pss
+    - match: (\})
+      captures:
+        1: punctuation.section.end.pss
+      pop: true
+    - include: code
+
+  # B.4 Exec blocks
+  exec-blocks:
+    # target-language, support only triple-quoted strings
+    - match: '^\s*(exec)\s+\b({{exec_kinds}})\s*\b(C\s*)=\s*(""")'
+      captures:
+        1: keyword.declaration.exec.pss
+        2: keyword.declaration.exec_kind.pss
+        3: keyword.declaration.exec.target_language_c.pss
+        4: punctuation.section.begin.pss
+      embed: scope:source.c++
+      embed_scope: meta.embedded.c++.pss
+      escape: '"""'
+      escape_captures:
+        0: punctuation.section.code.end.pss
+
+    # plain-file
+    - match: '^\s*(exec)\s+(file\s+)("[^"]*")\s*=\s*(""")'
+      captures:
+        1: keyword.declaration.exec.pss
+        2: keyword.declaration.exec_target_file.pss
+        3: entity.name.filename.pss
+        4: punctuation.section.begin.pss
+      push: exec-file
+
+    # native exec
+    - match: '^\s*(exec)\s+\b({{exec_kinds}})'
+      captures:
+        1: keyword.declaration.exec.pss
+        2: keyword.declaration.exec_kind.pss
+      push:
+        - match: '(\{)'
+          captures:
+            1: punctuation.section.begin.pss
+          set: exec-body
+
+  exec-body:
+    - meta_scope: meta.exec.body.pss
+    - match: (\})
+      captures:
+        1: punctuation.section.end.pss
+      pop: true
+    - include: code
+
+  exec-file:
+    - meta_scope: meta.exec.file.pss
+    - match: '"""'
+      captures:
+        1: punctuation.section.end.pss
       pop: true
 
-  line_comment:
-    - meta_scope: comment.line.example-c
+  # B.3 Struct (can be struct, buffer, stream, state, resource)
+  # TODO: curly-brace in next line
+  structs:
+    - match: (?=^\s*\b(struct|buffer|stream|state|resource)\s+\b{{valid_name}}\b(\s*{{super_spec}})*\s*\{)
+      push: struct-declaration
+
+  struct-declaration:
+    - match: \b(struct|buffer|stream|state|resource)\s+\b{{valid_name}}\b(?:\s*{{super_spec}})*\s*(\{)
+      captures:
+        1: keyword.declaration.struct.pss
+        2: entity.name.struct.pss
+        3: entity.name.superactions.pss
+        4: punctuation.section.begin.pss
+      set:
+        - meta_content_scope: meta.struct.body.pss
+        - match: (\})
+          captures:
+            1: punctuation.section.end.pss
+          pop: true
+        - include: exec-blocks
+        - include: code
+
+  # B.13 Data Types
+  enum-declaration:
+    - match: \b(enum)\s+\b{{valid_name}}\b\s*(\{)
+      captures:
+        1: keyword.declaration.pss
+        2: storage.type.pss
+        3: punctuation.section.begin.pss
+      push: enum-values-declaration
+
+  enum-values-declaration:
+    - meta_content_scope: meta.type.enum.pss
+    - match: (\s*,)
+      captures:
+        1: punctuation.separator.pss
+    - match: (\s*,)?(?:\s*{{valid_id}}\s*)(=)?
+      captures:
+        1: punctuation.separator.pss
+        2: constant.other.enum.pss
+        3: keyword.operator.assignment.pss
+    - match: (\})
+      captures:
+        1: punctuation.section.end.pss
+      pop: true
+    - include: priority-scopes
+
+  # B.15 Coverage declaration (appears in package, component, struct, action)
+  # coverage: BAUSTELLE
+
+  # B.14 Constraints declaration (appears in struct, action) BAUSTELLE
+
+  # Body of components, actions etc.
+  code:
+    - meta_content_scope: meta.struct.body.pss
+    - include: member-declaration
+    - include: priority-scopes
+    # - include: scalar-types
+    - include: stray-brackets-code
+    - include: default-scopes
+
+  # B.11 Data Declarations
+  member-declaration:
+    # Match scalar field members
+    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs}})*(?:{{valid_scalar_type}})\s+(?:{{valid_id}}\s*)(;|\=)'
+      captures:
+        1: storage.modifier.access.pss
+        2: storage.modifier.attribute.pss
+        3: storage.type.pss
+        4: storage.modifier.range.pss
+        5: variable.other.member.pss
+        6: punctuation.terminator.pss
+
+    # chandle
+    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs_no_rand}})*(chandle)\s+(?:{{valid_id}}\s*)(;|\=)'
+      captures:
+        1: storage.modifier.access.pss
+        2: storage.modifier.attribute.pss
+        3: storage.type.chandle.pss
+        4: variable.other.member.pss
+        5: punctuation.terminator.pss
+
+    # ref
+    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs_no_rand}})*(ref)\s+(?:{{valid_id}}\s+)(?:{{valid_id}}\s*)(;|\=)'
+      captures:
+        1: storage.modifier.access.pss
+        2: storage.modifier.attribute.pss
+        3: storage.modifier.pointer.pss
+        4: storage.type.ref.pss
+        5: variable.other.member.pss
+        6: punctuation.terminator.pss
+
+    # Collection types (array, list, map, set) -> open new scope
+    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs}})*({{collection_types}})\s*(\<)'
+      captures:
+        1: storage.modifier.access.pss
+        2: storage.modifier.attribute.pss
+        3: storage.type.collection.pss
+        4: punctuation.section.start.pss
+      push: collection-declaration
+
+    # Array has alternative syntax name[num-elements], see 8.8.2
+    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs}})*(?:{{valid_scalar_type}})\s+(?:{{valid_id}}\s*)(\[\s*\S+\s*\]\s*)(;|\=)'
+      captures:
+        1: storage.modifier.access.pss
+        2: storage.modifier.attribute.pss
+        3: storage.type.pss
+        4: storage.modifier.range.pss
+        5: variable.other.member.pss
+        6: storage.modifier.range.pss
+        7: punctuation.terminator.pss
+
+    # other (user) types (enum, class)
+    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs}})*(?:{{valid_id}})\s+(?:{{valid_id}}\s*)(;|\=)'
+      captures:
+        1: storage.modifier.access.pss
+        2: storage.modifier.attribute.pss
+        3: storage.type.pss
+        4: variable.other.member.pss
+        5: punctuation.terminator.pss
+
+  # Collection type scope
+  collection-declaration:
+    - match: ({{collection_types}})\s*(\<)
+      captures:
+        1: storage.type.collection.pss
+        2: punctuation.section.start.pss
+      push: collection-declaration
+    - match: '(\>)\s+(?:{{valid_id}}\s*)(;|\=)'
+      captures:
+        1: punctuation.section.end.pss
+        2: variable.other.member.pss
+      pop: true
+    - match: (\>)
+      captures:
+        1: punctuation.section.end.pss
+      pop: true
+    - include: scalar-types
+
+
+  # Group commonly used scopes
+  priority-scopes:
+    - include: literals
+    - include: operators
+
+  # stray brackets/braces (taken from systemverilog syntax)
+  stray-brackets:
+    - match: '\)|\]|\}'
+      scope: invalid.illegal.stray-bracket-end.pss
+
+  stray-brackets-code:
+    - match: '\('
+      push:
+        - meta_content_scope: meta.class.body.pss
+        - match: '\)'
+          pop: true
+        - match: '[^\)\n]*$(?!\n)'
+          scope: invalid.illegal.unbalanced-bracket.pss
+        - include: code
+    - match: '\['
+      push:
+        - meta_content_scope: meta.class.body.pss
+        - match: '\]'
+          pop: true
+        - match: '[^\]\n]*$(?!\n)'
+          scope: invalid.illegal.unbalanced-bracket.pss
+        - include: code
+    - match: '\{'
+      push:
+        - meta_content_scope: meta.class.body.pss
+        - match: '\}'
+          pop: true
+        - match: '[^\}\n]*$(?!\n)'
+          scope: invalid.illegal.unbalanced-bracket.pss
+        - include: code
+    - include: stray-brackets
+
+  # Basic scopes
+  comments:
+    - match: (//|--)
+      scope: punctuation.section.comment.pss
+      push: comment-contents
+    - match: (/\*)
+      scope: punctuation.section.comment.begin.pss
+      push: comment-multiline
+
+  comment-contents:
+    - meta_scope: comment.line.pss
+    - meta_include_prototype: false
+    - match: \b{{comment_tags}}
+      scope: invalid
     - match: $
       pop: true
 
+  comment-multiline:
+    - meta_content_scope: text.pss
+    - meta_include_prototype: false
+    - match: (\*/)
+      scope: punctuation.section.comment.end.pss
+      pop: true
+
+  string:
+    - meta_scope: string.quoted.double.pss
+    - meta_include_prototype: false
+    - match: (?:{{escaped_char}})
+      scope: constant.character.escape.pss
+    - match: '"'
+      scope: punctuation.definition.string.end.pss
+      pop: true
+
+  triple-string:
+    - meta_scope: string.quoted.triple.pss
+    - meta_include_prototype: false
+    - match: '"""'
+      scope: punctuation.definition.triple-string.end.pss
+      pop: true
+
+  # B.19
+  literals:
+    - match: \b{{built_in_constants}}\b
+      captures:
+        1: constant.language.pss
+    # sized numbers
+    - match: \b{{dec_number}}*(')\[sS\]*\[bB\]{{bin_digit}}\[{{bin_digit|}}_\]*\b
+      captures:
+        1: constant.numeric.sized.binary.pss
+        2: punctuation.separator.literal.pss
+    - match: \b{{dec_number}}*\b(')\[sS\]*\[oO\]{{oct_digit}}[{{oct_digit}}_]*\b
+      captures:
+        1: constant.numeric.sized.octal.pss
+        2: punctuation.separator.literal.pss
+    - match: \b{{dec_number}}*\b(')\[sS\]*\[dD\]{{dec_digit}}[{{dec_digit}}_]*\b
+      captures:
+        1: constant.numeric.sized.decimal.pss
+        2: punctuation.separator.literal.pss
+    - match: \b{{dec_number}}*\b(')\[sS\]*\[hH\]{{hex_digit}}[{{hex_digit}}_]*\b
+      captures:
+        1: constant.numeric.sized.hex.pss
+        2: punctuation.separator.literal.pss
+    # unsized numbers
+    - match: \b0{{oct_digit}}[{{oct_digit}}_]*\b
+      captures:
+        1: constant.numeric.unsized.octal.pss
+    - match: \b0\[xX\]{{hex_digit}}[{{hex_digit}}_]*\b
+      captures:
+        1: constant.numeric.unsized.hex.pss
+    - match: \b{{dec_digit}}[{{dec_digit}}_]*\b
+      captures:
+        1: constant.numeric.unsized.decimal.pss
+
+    - match: '"""'
+      scope: punctuation.definition.triple-string.begin.pss
+      push: triple-string
+
+    - match: '"'
+      scope: punctuation.definition.string.begin.pss
+      push: string
+
+  # Operators
+  operators:
+    - scope: keyword.operator.boolean.pss
+      match: '(&&|\|\||!)'
+
+      # Note: we exclude the delayed assignment operator here because it is already
+      # part of the comparison operator match
+    - scope: keyword.operator.assignment.pss
+      match: '(=|\+=|-=|&=|\|=|>>=|<<=)'
+
+    - scope: keyword.operator.comparison.pss
+      match: (==|!=|>|<|===|!===|>=|<=)
+
+    - scope: keyword.operator.arithmetic.pss
+      match: (-|\+|\*|/|%|<<|>>|\*\*|\^)
+
+    - scope: keyword.operator.unary.pss
+      match: '(-|&|\||~|\^)'
+
+    - scope: keyword.operator.set.pss
+      match: in
+
+  scalar-types:
+     - match: \s*(?:\b{{valid_scalar_type}})\b
+       captures:
+         1: storage.type.pss
+
+####### These pick-up any remaining scopes not matched above
+
+  default-scopes:
+    - scope: keyword.other.pss
+      match: \b(super)\b
+    - scope: keyword.function.builtin
+      match: \b(message)\b
 # end

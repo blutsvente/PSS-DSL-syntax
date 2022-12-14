@@ -1,0 +1,10 @@
+component ninety_nine_bottles_of_beer {
+   
+   string lyrics[200];
+
+   action go {
+      exec body {
+
+      }
+   }
+}

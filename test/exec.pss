@@ -1,0 +1,27 @@
+component test_exec {
+
+   exec body {
+
+   }
+
+   // braces in next line
+   exec init_up
+   {
+
+   }
+
+   exec body  C = """
+      DpiCpuImportInterface *dpiCpuImport = dynamic_cast<DpiCpuImportInterface *>(sc_core::sc_find_object(path));
+      if (!dpiCpuImport)
+      {
+         std::ostringstream msg;
+         msg << __FUNCTION__ << "() SystemC DpiCpuImport module has not been found: " << path;
+         SC_REPORT_ERROR(getMsgId(path).c_str(), msg.str().c_str());
+      }
+   """
+
+   exec   file  "scripts/bla.sh" = """
+   This is a plain-text file!
+
+   """
+}
