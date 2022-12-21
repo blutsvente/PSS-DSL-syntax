@@ -18,7 +18,7 @@ variables:
   built_in_types: ({{scalar_types}}|{{collection_types}})
   built_in_constants: null|true|false
   access: public|protected|private
-  attribs: rand|static|const
+  attribs: rand|static\sconst|static|const # cannot use \s+ here
   exec_kinds: pre_solve|post_solve|body|header|declaration|run_start|run_end|init_down|init_up|init
   object_kinds: buffer|stream|state|resource
   bin_digit: '[0-1]'
@@ -35,12 +35,12 @@ variables:
   # Simple valid identifier
   valid_id: ([a-zA-Z](?:[a-zA-Z0-9_]+)?(?<!{{invalid_names}}))
   super_spec: \:\s*{{valid_name}}
-  scalar_range_modifier: '\bin\s*\[[a-zA-Z0-9_\.,]+\]'
+  scalar_range_modifier: '\bin\s*\[.+?\.\..+?\]'
   scalar_width_modifier: '\[\s*\S+\s*:\s*0\]'
   valid_scalar_type: ({{scalar_types}})(\s*{{scalar_range_modifier}})?
   valid_access: (?:{{access}})
   valid_attribs: (?:(?:{{attribs}})\s+)
-  valid_attribs_no_rand: (?:(?:static|const)\s+)
+  valid_attribs_no_rand: (?:(?:static\s+const|const)\s+)
 
 contexts:
   main:
@@ -90,12 +90,6 @@ contexts:
       push: component-declaration
     - match: (?=^\s*extend\s*\bcomponent\s+\b{{valid_name}}\b\s*\{)
       push: component-declaration
-
-#      push:
-#        - match: '(\{)'
-#          captures:
-#            1: punctuation.section.begin.pss
-#          set: exec-body
 
   component-declaration:
     - meta_scope: meta.class.declaration.pss
@@ -164,6 +158,7 @@ contexts:
           pop: true
         - include: activity
         - include: exec-blocks
+        - include: constraint-declaration
         - include: code
 
   action-declaration:
@@ -182,6 +177,7 @@ contexts:
           pop: true
         - include: activity
         - include: exec-blocks
+        - include: constraint-declaration
         - include: code
 
   action-extend-declaration:
@@ -199,6 +195,7 @@ contexts:
           pop: true
         - include: activity
         - include: exec-blocks
+        - include: constraint-declaration
         - include: code
 
   # TODO: curly-brace in next line
@@ -288,6 +285,7 @@ contexts:
             1: punctuation.section.end.pss
           pop: true
         - include: exec-blocks
+        - include: constraint-declaration
         - include: code
 
   # B.13 Data Types
@@ -318,7 +316,16 @@ contexts:
   # B.15 Coverage declaration (appears in package, component, struct, action)
   # coverage: BAUSTELLE
 
-  # B.14 Constraints declaration (appears in struct, action) BAUSTELLE
+  # B.14 Constraints declaration (appears in struct, action)
+  # Keep it simple, only match part before block
+  constraint-declaration:
+    - meta_scope: meta.type.constraint.pss
+    - match: \b(dynamic\s+)*(constraint)\s+\b{{valid_name}}\b
+      captures:
+        1: storage.modifier.attribute.pss
+        2: keyword.declaration.pss
+        3: storage.type.pss
+
 
   # Body of components, actions etc.
   code:
@@ -531,8 +538,6 @@ contexts:
     - scope: keyword.operator.boolean.pss
       match: '(&&|\|\||!)'
 
-      # Note: we exclude the delayed assignment operator here because it is already
-      # part of the comparison operator match
     - scope: keyword.operator.assignment.pss
       match: '(=|\+=|-=|&=|\|=|>>=|<<=)'
 
@@ -545,8 +550,14 @@ contexts:
     - scope: keyword.operator.unary.pss
       match: '(-|&|\||~|\^)'
 
+    - scope: keyword.operator.range.pss
+      match: '{{scalar_range_modifier}}'
+
     - scope: keyword.operator.set.pss
-      match: in
+      match: \bin\b
+
+    - scope: keyword.operator.iteration.pss
+      match: ':'
 
   scalar-types:
      - match: \s*(?:\b{{valid_scalar_type}})\b
@@ -558,6 +569,14 @@ contexts:
   default-scopes:
     - scope: keyword.other.pss
       match: \b(super)\b
-    - scope: keyword.function.builtin
-      match: \b(message)\b
+
+    - scope: keyword.function.builtin.pss
+      match: \b(message|appendf)\b
+
+    - scope: keyword.control.pss
+      match: \b(sequence|repeat|while|schedule|foreach|forall|if|else|match|default|break|continue)
+
+    - scope: keyword.control.activity.pss
+      match: \b(do|with|parallel|join_branch|join_select|join_none|join_first|select|replicate|symbol|bind)\b
+
 # end

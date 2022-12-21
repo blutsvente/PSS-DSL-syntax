@@ -24,7 +24,7 @@ buffer mem_buffer {
 
    const int in [1..3] bla;
    protected static const int x;
-   rand int in [512..2048] size ;
+   rand int in [512..2048-1] size ;
    rand video_coding_e encoding ;
 
    //step #1 b): add the video resolution to the token

@@ -1,10 +1,55 @@
-component ninety_nine_bottles_of_beer {
+// 99-bottles-of-beer-on-the-wall
+// (c) 2022 Thorsten Dworzak
+
+extend component pss_top {
    
-   string lyrics[200];
+   static const int n_verses = 100;
 
-   action go {
+   action print_one_line {
+      rand int verse_number;
+      rand string line1;
+      rand string line2;
+
+      constraint verse_number in [0..n_verses-1];
+
+      constraint c_line1 {
+         if (verse_number == n_verses - 1) {
+            line1 == "No more bottles of beer on the wall, no more bottles of beer."
+         } else if (verse_number == n_verses - 2) {
+            line1 == "1 bottle of beer on the wall, 1 bottle of beer."
+         } else {
+            line1 == appendf("%0d bottles of beer on the wall, %0d bottles of beer.", 99-verse_number, 99-verse_number)
+         }
+      }
+
+      constraint c_line2 {
+          if (verse_number == n_verses - 1) {
+            line2 == "Go to the store and buy some more, 99 bottles of beer on the wall."
+         } else if (verse_number == n_verses - 2) {
+            line2 == "Take one down and pass it around, no more bottles of beer on the wall."
+         } else if (verse_number == n_verses - 3) {
+            line2 == "Take one down and pass it around, 1 bottle of beer on the wall."
+         } else {
+            line2 == appendf("Take one down and pass it around, %0d bottles of beer on the wall.", 99-verse_number-1)
+         }
+      }
+
       exec body {
+         message(NONE, line1);
+         message(NONE, line2);
+      }
+   }
 
+   action print_lyrics {
+      print_one_line a_line;
+
+      activity {
+         schedule {
+            repeat (i:n_verses) {
+               a_line with { verse_number == i; }
+            }
+         }
       }
    }
 }
+// end

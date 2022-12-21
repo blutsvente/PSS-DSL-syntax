@@ -1,5 +1,4 @@
 component test_exec {
-
    exec body {
 
    }
