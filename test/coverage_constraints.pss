@@ -1,0 +1,43 @@
+component foo : my_package {
+
+   enum color_e { blue, gree, red};
+
+   buffer bar {
+      rand int i;
+      rand int a;
+
+      // unnamed constraints
+      constraint { i>1 };
+
+      constraint i>1;
+
+      // Covergroup declaration
+      dynamic constraint foo foreach (i:10)
+      {
+         a == i+1;
+      }
+
+      // Covergroup definition
+      covergroup cg0 (color_e c) {
+         c: coverpoint c;
+      }
+
+      // Covergroup instantiation
+      rand color_e col;
+      cg0 cg0_inst (col);
+
+      // Covergroup inline instantiation
+      bit is_enabled = 0;
+      covergroup {
+         option.at_least = 2;
+         c: coverpoint i iff (is_enabled);
+      } cg1_inst;
+
+      const int pi = 3.141;
+
+   }
+
+   struct foo {
+
+   }
+}
