@@ -11,17 +11,20 @@ version: 2
 # Note: Numbered comments refer to chapters in the PSS Specification 2.0
 # See also: https://www.sublimetext.com/docs/3/syntax.html and https://www.sublimetext.com/docs/3/scope_naming.html
 # Note to self:  Ctrl+Alt+Shift+P (Windows/Linux) -> scope under caret
-# TODO: #B.12 Template types / see TODOs below
+# TODO: #B.12 Template types
+# TODO: #B.5 Functions
+# see other TODOs below
 
 variables:
   scalar_types: int|bit|string|bool|enum
   collection_types: array|list|map|set
   built_in_types: ({{scalar_types}}|{{collection_types}})
   built_in_constants: null|true|false
+  built_in-functions: message|appendf
   access: public|protected|private
   attribs: rand|static\sconst|static|const # cannot use \s+ here
   exec_kinds: pre_solve|post_solve|body|header|declaration|run_start|run_end|init_down|init_up|init
-  object_kinds: buffer|stream|state|resource
+  object_kinds: struct|buffer|stream|state|resource
   bin_digit: '[0-1]'
   oct_digit: '[0-7]'
   dec_digit: \d
@@ -275,11 +278,11 @@ contexts:
   # B.3 Struct (can be struct, buffer, stream, state, resource)
   # TODO: curly-brace in next line
   structs:
-    - match: (?=^\s*\b(struct|buffer|stream|state|resource)\s+\b{{valid_name}}\b(\s*{{super_spec}})*\s*\{)
+    - match: (?=^\s*\b({{object_kinds}})\s+\b{{valid_name}}\b(\s*{{super_spec}})*\s*\{)
       push: struct-declaration
 
   struct-declaration:
-    - match: \b(struct|buffer|stream|state|resource)\s+\b{{valid_name}}\b(?:\s*{{super_spec}})*\s*(\{)
+    - match: \b({{object_kinds}})\s+\b{{valid_name}}\b(?:\s*{{super_spec}})*\s*(\{)
       captures:
         1: keyword.declaration.struct.pss
         2: entity.name.struct.pss
@@ -363,6 +366,9 @@ contexts:
         1: keyword.declaration.dynamic.pss
         2: keyword.declaration.constraint.pss
         3: entity.name.constraint.pss
+
+  # TODO: B.5 Functions (in package, component)
+  #
 
   # Body of components, actions etc.
   code:
@@ -611,7 +617,7 @@ contexts:
       match: \b(super)\b
 
     - scope: support.function.builtin.pss
-      match: \b(message|appendf)\b
+      match: \b({{built_in-functions}})\b
 
     - scope: keyword.control.activity.pss
       match: \b(do|with|parallel|join_branch|join_select|join_none|join_first|select|replicate|symbol|bind)\b
@@ -625,15 +631,19 @@ contexts:
     - scope: keyword.control.pss
       match: \b(sequence|repeat|while|schedule|foreach|forall|if|else|match|default|break|continue)
 
-    - scope: keyword.conditional-compilation.pss
+    - scope: keyword.other.conditional-compilation.pss
       match: \b(compile|assert|has)\b
 
-    - scope: keyword.flow-declaration.pss
+    - scope: keyword.other.flow-declaration.pss
       match: \b(input|output)\b
 
-    - scope: keyword.resource-declaration.pss
+    - scope: keyword.other.resource-declaration.pss
       match: \b(lock|share)\b
 
-    - scope: keyword.type-param.pss
+    - scope: keyword.other.type-param.pss
       match: \b(type)\b
+
+    - scope: keyword.other.override.pss
+      match: \b(override|instance)\b
+
 # end
