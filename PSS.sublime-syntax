@@ -41,10 +41,12 @@ variables:
   super_spec: \:\s*{{valid_name}}
   scalar_range_modifier: '\bin\s*\[.+?\.\..+?\]'
   scalar_width_modifier: '\[\s*\S+\s*:\s*0\]'
-  valid_scalar_type: ({{scalar_types}})(\s*{{scalar_range_modifier}})?
+  valid_scalar_type: ({{scalar_types}})(\s*(?:{{scalar_range_modifier}}|{{scalar_width_modifier}}))?
   valid_access: (?:{{access}})
   valid_attribs: (?:(?:{{attribs}})\s+)
   valid_attribs_no_rand: (?:(?:static\s+const|const)\s+)
+  platform_qualifier: (?:target|solve)
+  language_identifier: '[A-Z]+'
 
 contexts:
   main:
@@ -63,6 +65,23 @@ contexts:
     - include: comments
 
   imports:
+  	 # import_function
+    - match: \b(import)\s+(\b{{platform_qualifier}}\s+)?({{language_identifier}}\s+)?\b(function)\s+(.*)(;)
+      captures:
+        1: keyword.control.import.pss
+        2: keyword.declaration.platform_qualifier.pss
+        3: keyword.declaration.language_identifier.pss
+        4: keyword.declaration.function.pss
+        5: meta.method.identifier.pss entity.name.function.pss
+        6: punctuation.terminator.pss
+    # import_class_decl
+    - match: \b(import)\s+\b(class)\s+{{valid_name}}\b(?:\s*{{super_spec}})*
+      captures:
+        1: keyword.control.import.pss
+        2: keyword.declaration.class.pss
+        3: entity.name.class.pss
+        4: entity.name.superclasses.pss
+    # import_stmt
     - match: \b(import)\s+(.*)(;)
       captures:
         1: keyword.control.import.pss
@@ -111,6 +130,7 @@ contexts:
           captures:
             1: punctuation.section.end.pss
           pop: true
+        - include: imports
         - include: actions
         - include: enum-declaration
         - include: covergroups

@@ -17,6 +17,7 @@ enum video_coding_e  {
 
 buffer mem_buffer {
    int x;
+   bit[31:0] foo;
    bool y = false;
    string  foo= "test";
    protected int bla;

@@ -19,6 +19,7 @@ package  foo::outer{
 }
 
 component x1 {
+   import external_functions_pkg::*; // import_stmt
 
    abstract  action  a1 : base_action  {
 
@@ -28,6 +29,12 @@ component x1 {
       activity {
 
       }
+   }
+
+   import target C function my_method; // import_function
+
+   import class ext : base { // import_class_decl
+      void ext_function();
    }
 
    buffer mem_buffer : base_buffer {
