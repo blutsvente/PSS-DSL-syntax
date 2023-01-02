@@ -10,9 +10,8 @@ version: 2
 # Syntax for the PSS domain-specific-language
 # Note: Numbered comments refer to chapters in the PSS Specification 2.0
 # See also: https://www.sublimetext.com/docs/3/syntax.html and https://www.sublimetext.com/docs/3/scope_naming.html
-# Note to self:  Ctrl+Alt+Shift+P (Windows/Linux) -> scope under caret
+# Note to self:  Ctrl+Alt+Shift+P (Windows/Linux) -> scope under caret (MacOS: Ctrl+Shift+P)
 # TODO: #B.12 Template types
-# TODO: #B.5 Functions
 # see other TODOs below
 
 variables:
@@ -20,7 +19,7 @@ variables:
   collection_types: array|list|map|set
   built_in_types: ({{scalar_types}}|{{collection_types}})
   built_in_constants: null|true|false
-  built_in-functions: message|appendf
+  built_in_functions: message|appendf
   access: public|protected|private
   attribs: rand|static\sconst|static|const # cannot use \s+ here
   exec_kinds: pre_solve|post_solve|body|header|declaration|run_start|run_end|init_down|init_up|init
@@ -29,7 +28,10 @@ variables:
   oct_digit: '[0-7]'
   dec_digit: \d
   hex_digit: '[0-9a-fA-F]'
-  dec_number: ({{dec_digit}}+)
+  dec_number: '{{dec_digit}}[{{dec_digit}}_]*'
+  hex_number: '{{hex_digit}}[{{hex_digit}}_]*'
+  oct_number: '{{oct_digit}}[{{oct_digit}}_]*'
+  bin_number: '{{bin_digit}}[{{bin_digit}}_]*'
   escaped_char: \\n|\\t|\\f|\\"|\\\\|\\r|\\t|\\f|\\"|\\'|\\\\|\\r|\\a|\\b|\\v|\\\[0-7\]\[0-7\]\[0-7\]
   # Tags in comment.line that will be highlighted
   comment_tags: 'TODO:?|DEBUG:?|FIXME:?|BAUSTELLE:?|TBD:?'
@@ -44,7 +46,7 @@ variables:
   valid_scalar_type: ({{scalar_types}})(\s*(?:{{scalar_range_modifier}}|{{scalar_width_modifier}}))?
   valid_access: (?:{{access}})
   valid_attribs: (?:(?:{{attribs}})\s+)
-  valid_attribs_no_rand: (?:(?:static\s+const|const)\s+)
+  valid_attribs_no_rand: (?:(?:static\s+const|static|const)\s+)
   platform_qualifier: (?:target|solve)
   language_identifier: '[A-Z]+'
 
@@ -55,6 +57,7 @@ contexts:
    - include: action-abstract-declaration
    - include: action-extend-declaration
    - include: enum-declaration
+   - include: function-declaration
    - include: components
    - include: structs
    - include: covergroups
@@ -65,7 +68,7 @@ contexts:
     - include: comments
 
   imports:
-  	 # import_function
+    # import_function
     - match: \b(import)\s+(\b{{platform_qualifier}}\s+)?({{language_identifier}}\s+)?\b(function)\s+(.*)(;)
       captures:
         1: keyword.control.import.pss
@@ -133,6 +136,7 @@ contexts:
         - include: imports
         - include: actions
         - include: enum-declaration
+        - include: function-declaration
         - include: covergroups
         - include: structs
         - include: exec-blocks
@@ -381,23 +385,119 @@ contexts:
   # Keep it simple, only match part before block
   constraint-declaration:
     - meta_scope: meta.type.constraint.pss
-    - match: \b(dynamic\s+)*(constraint\s+)(?:{{valid_name}}\s+)
+    - match: \b(dynamic\s+)?(constraint\s+)(?:{{valid_name}}\s+)
       captures:
         1: keyword.declaration.dynamic.pss
         2: keyword.declaration.constraint.pss
         3: entity.name.constraint.pss
+    # unnamed constraint
+    - match: \b(dynamic\s+)?(constraint\s+)
+      captures:
+        1: keyword.declaration.dynamic.pss
+        2: keyword.declaration.constraint.pss
 
-  # TODO: B.5 Functions (in package, component)
-  #
+  # B.5 Functions (in package, component)
+  function-declaration:
+    - match: \b(target\s+)([A-Z]+\s+)(function\s+)\b(void\s+)(?:{{valid_name}})
+      captures:
+        1: keyword.declaration.target_template.pss
+        2: keyword.declaration.target_language.pss
+        3: keyword.declaration.function.pss
+        4: meta.method.return-type.pss storage.type.pss
+        5: meta.method.identifier.pss entity.name.function.pss
+      push:
+        - match:  '(\()'
+          captures:
+            1: punctuation.section.begin.pss
+          set: function-parameters
+
+    - match: \b(pure\s+)?(function\s+)\b(void\s+)(?:{{valid_name}})
+      captures:
+        1: keyword.declaration.pure.pss
+        2: keyword.declaration.function.pss
+        3: meta.method.return-type.pss storage.type.pss
+        4: meta.method.identifier.pss entity.name.function.pss
+      push:
+        - match:  '(\()'
+          captures:
+            1: punctuation.section.begin.pss
+          set: function-parameters
+
+    - match: \b(pure\s+)?(function\s+)(?:{{valid_scalar_type}}\s+)(?:{{valid_name}})
+      captures:
+        1: keyword.declaration.pure.pss
+        2: keyword.declaration.function.pss
+        3: meta.method.return-type.pss storage.type.pss
+        4: meta.method.return-type.pss storage.modifier.range.pss
+        5: meta.method.identifier.pss entity.name.function.pss
+      push:
+        - match: '(\()'
+          captures:
+            1: punctuation.section.begin.pss
+          set: function-parameters
+
+  # this syntax for prototypes only in import_class_decl for which we don't have a scope -> include in code
+  function-prototype:
+    - match: \b(void\s+)(?:{{valid_name}})
+      captures:
+        1: meta.method.return-type.pss storage.type.pss
+        2: meta.method.identifier.pss entity.name.function.pss
+      push:
+        - match:  '(\()'
+          captures:
+            1: punctuation.section.begin.pss
+          set: function-parameters
+
+    - match: \b(?:{{valid_scalar_type}}\s+)(?:{{valid_name}})
+      captures:
+        1: meta.method.return-type.pss storage.type.pss
+        2: meta.method.return-type.pss storage.modifier.range.pss
+        3: meta.method.identifier.pss entity.name.function.pss
+      push:
+        - match: '(\()'
+          captures:
+            1: punctuation.section.begin.pss
+          set: function-parameters
+
+  function-parameters:
+    - match: (\))
+      captures:
+        1: punctuation.section.end.pss
+      pop: true
+    - include: priority-scopes
+    - include: data-types
+    - match: \b(type|struct)\b
+      captures:
+        1: storage.type.pss
+    - include: default-scopes
+
+  function-call:
+    - match: \b(?:{{valid_id}})\s*(\()
+      captures:
+        1: meta.method.identifier.pss variable.function.pss
+        2: punctuation.section.begin.pss
+      push: function-call-parameters
+
+  function-call-parameters:
+    - match: (\))
+      captures:
+        1: punctuation.section.end.pss
+      pop: true
+    - include: priority-scopes
+    - include: default-scopes
 
   # Body of components, actions etc.
   code:
     - meta_content_scope: meta.struct.body.pss
     - include: member-declaration
     - include: priority-scopes
-    # - include: scalar-types
+    - match: \(\s*(void)\s*\)
+      captures:
+        1: keyword.other.void-cast.pss
     - include: stray-brackets-code
     - include: default-scopes
+    - include: function-call
+    - include: function-prototype
 
   # B.11 Data Declarations
   member-declaration:
@@ -475,7 +575,7 @@ contexts:
       captures:
         1: punctuation.section.end.pss
       pop: true
-    - include: scalar-types
+    - include: data-types
 
 
   # Group commonly used scopes
@@ -557,34 +657,38 @@ contexts:
 
   # B.19
   literals:
-    - match: \b{{built_in_constants}}\b
+    - match: \b({{built_in_constants}})\b
       captures:
         1: constant.language.pss
     # sized numbers
-    - match: \b{{dec_number}}*(')\[sS\]*\[bB\]{{bin_digit}}\[{{bin_digit|}}_\]*\b
+    - match: ({{dec_digit}})?(')([sS]*[bB]{{bin_number}})\b
       captures:
-        1: constant.numeric.sized.binary.pss
+        1: constant.numeric.base.pss
         2: punctuation.separator.literal.pss
-    - match: \b{{dec_number}}*\b(')\[sS\]*\[oO\]{{oct_digit}}[{{oct_digit}}_]*\b
+        3: constant.numeric.sized.binary.pss
+    - match: ({{dec_digit}})?(')([sS]*[oO]{{oct_number}})\b
       captures:
-        1: constant.numeric.sized.octal.pss
+        1: constant.numeric.base.pss
         2: punctuation.separator.literal.pss
-    - match: \b{{dec_number}}*\b(')\[sS\]*\[dD\]{{dec_digit}}[{{dec_digit}}_]*\b
+        3: constant.numeric.sized.octal.pss
+    - match: ({{dec_digit}})?(')([sS]*[dD]{{dec_number}})\b
       captures:
-        1: constant.numeric.sized.decimal.pss
+        1: constant.numeric.base.pss
         2: punctuation.separator.literal.pss
-    - match: \b{{dec_number}}*\b(')\[sS\]*\[hH\]{{hex_digit}}[{{hex_digit}}_]*\b
+        3: constant.numeric.sized.decimal.pss
+    - match: ({{dec_digit}})?(')([sS]*[hH]{{hex_number}})\b
       captures:
-        1: constant.numeric.sized.hex.pss
+        1: constant.numeric.base.pss
         2: punctuation.separator.literal.pss
+        3: constant.numeric.sized.hex.pss
     # unsized numbers
-    - match: \b0{{oct_digit}}[{{oct_digit}}_]*\b
+    - match: \b(0{{oct_number}})\b
       captures:
         1: constant.numeric.unsized.octal.pss
-    - match: \b0\[xX\]{{hex_digit}}[{{hex_digit}}_]*\b
+    - match: \b(0[xX]{{hex_number}})\b
       captures:
         1: constant.numeric.unsized.hex.pss
-    - match: \b{{dec_digit}}[{{dec_digit}}_]*\b
+    - match: \b({{dec_number}})*\b
       captures:
         1: constant.numeric.unsized.decimal.pss
 
@@ -625,19 +729,26 @@ contexts:
     - scope: keyword.operator.collection-separator.pss
       match: ','
 
-  scalar-types:
-     - match: \s*(?:\b{{valid_scalar_type}})\b
-       captures:
-         1: storage.type.pss
+  data-types:
+    - match: \b(?:\b{{valid_scalar_type}})\b
+      captures:
+        1: storage.type.pss
+    - match:  \b(chandle)\b
+      captures:
+        1: storage.type.pss
+    - match:  \b(ref)\b
+      captures:
+        1: storage.type.pss
+
 
 ####### These pick-up any remaining scopes not matched above
 
   default-scopes:
     - scope: keyword.other.pss
-      match: \b(super)\b
+      match: \bsuper\b
 
     - scope: support.function.builtin.pss
-      match: \b({{built_in-functions}})\b
+      match: \b({{built_in_functions}})\b
 
     - scope: keyword.control.activity.pss
       match: \b(do|with|parallel|join_branch|join_select|join_none|join_first|select|replicate|symbol|bind)\b
@@ -661,9 +772,10 @@ contexts:
       match: \b(lock|share)\b
 
     - scope: keyword.other.type-param.pss
-      match: \b(type)\b
+      match: \btype\b
 
     - scope: keyword.other.override.pss
       match: \b(override|instance)\b
+
 
 # end

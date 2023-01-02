@@ -1,6 +1,6 @@
 component foo : my_package {
 
-   enum color_e { blue, gree, red};
+   enum color_e { blue, green, red};
 
    buffer bar {
       rand int i;

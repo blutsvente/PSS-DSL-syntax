@@ -1,20 +1,36 @@
 package external_functions_pkg {
 
-  function bit[31:0] alloc_addr(bit[31:0] size);
+
+  function bit[31:0] alloc_addr(bit[31:0] size, string t="NO");
 
   function void transfer_mem(
-    bit[31:0] src, bit[31:0] dst, bit[31:0] size
+    bit[31:0] src, bit[31:0] dst, bit[31:0] size = 0xa
   );
+
+  pure function void no_params()
+  {
+    int count = 0;
+  };
+
+  function void t_params(ref A p, type C, struct xy, chandle ii_3);
 
   buffer mem_segment_s {
     rand bit[31:0]        size;
     bit[31:0]             addr;
     constraint size in [8..4096];
     exec post_solve {
-      addr = alloc_addr(size);
+      addr = alloc_addr(size); // function calling
     }  
   }
+
+  // target_template_function
+  target ASM function void do_stw(bit[31:0] val, bit[31:0] vaddr) = """
+      loadi RA {{val}}
+      store RA {{vaddr}}
+    """;
 }
+
+
 
 component mem_xfer {
   import external_functions_pkg::*;
@@ -26,7 +42,10 @@ component mem_xfer {
     constraint in_buff.size == out_buff.size;
 
     exec body {
-      transfer_mem(in_buff.addr, out_buff.addr, in_buff.size);
+      int a = 0x5;
+      // function calling
+      transfer_mem(in_buff.addr, out_buff.addr, in_buff.size, 32'hff);
+      (void) alloc_addr(0x0, "test");
     } 
   }
 }
