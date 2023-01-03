@@ -18,14 +18,20 @@ package  foo::outer{
    }
 }
 
-component x1 {
+component x1
+{
    import external_functions_pkg::*; // import_stmt
 
-   abstract  action  a1 : base_action  {
+   action a0
+   {
+      int my_var;
+   }
+
+   abstract  action  a1 : base_action {
 
    }
 
-   extend action a1 {
+   extend action a2 {
       activity {
 
       }
@@ -37,7 +43,8 @@ component x1 {
       int ext_function();
    }
 
-   buffer mem_buffer : base_buffer {
+   buffer mem_buffer : base_buffer
+   {
 
    }
 }
@@ -51,7 +58,10 @@ extend action a3 {
 }
 
 
+package other
+{
 
+}
 
 
 // end

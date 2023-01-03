@@ -10,31 +10,39 @@ component x1 {
    rand array<int, 10> my_array;
 }
 
-enum video_coding_e  {
+enum video_coding_e {
    MPG = 16'd1 + 16'hff_ff,
    MP4,  RM = -10
 }
 
-buffer mem_buffer {
-   int x;
-   bit[31:0] foo = 32'haffe;
-   bit[6:0] bin_number = 'b10101;
-   bit[7:0] oct_number = 8'o710;
-   int hex2 = 0x222_3233;
-   int oct2 = 0175;
-   bool y = false;
-   string  foo= "test";
-   protected int bla;
-   public  const string foo;
+enum numbering_e
+{
+   ONCE, TWICE
+}
 
-   const int in [1..3] bla;
-   protected static const int x;
-   rand int in [512..2048-1] size ;
-   rand video_coding_e encoding ;
+component x2 {
 
-   //step #1 b): add the video resolution to the token
-   rand video_resolution_e resolution;
+   buffer mem_buffer {
+      int x;
+      bit[31:0] foo = 32'haffe;
+      bit[6:0] bin_number = 'b10101;
+      bit[7:0] oct_number = 8'o710;
+      int hex2 = 0x222_3233;
+      int oct2 = 0175;
+      bool y = false;
+      string  foo= "test";
+      protected int bla;
+      public  const string foo;
+
+      const int in [1..3] bla;
+      protected static const int x;
+      rand int in [512..2048-1] size ;
+      rand video_coding_e encoding ;
+
+      //step #1 b): add the video resolution to the token
+      rand video_resolution_e resolution;
 
 
-   rand int in [0..4095] addr;
- }
+      rand int in [0..4095] addr;
+   }
+}

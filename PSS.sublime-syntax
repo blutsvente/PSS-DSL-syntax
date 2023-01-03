@@ -54,8 +54,7 @@ contexts:
   main:
    - include: imports
    - include: package
-   - include: action-abstract-declaration
-   - include: action-extend-declaration
+   - include: actions
    - include: enum-declaration
    - include: function-declaration
    - include: components
@@ -94,39 +93,50 @@ contexts:
   # B.1 Package
   package:
   # Note: extensions may appear in (global unnamed) package and component decls
-    - match: \b(package)\s+\b{{valid_name}}\b\s*(\{)
+    - match: \b(package)\s+\b{{valid_name}}\b # \s*(\{)
       captures:
         1: keyword.declaration.namespace.pss
         2: entity.name.pss
-        3: punctuation.section.begin.pss
+        # 3: punctuation.section.begin.pss
       push: package-declaration
 
   package-declaration:
     - meta_scope: meta.package.declaration.pss
-    - match: (\})
+    - match: (\{)
       captures:
-        1: punctuation.section.end.pss
-      pop: true
-    - include: main
+        1: punctuation.section.begin.pss
+      set:
+        - meta_content_scope: meta.package.body.pss
+        - match: (\})
+          captures:
+            1: punctuation.section.end.pss
+          pop: true
+        - include: main
 
   # B.8 Component
   # TODO: template_param_decl_list
-  # TODO: curly-brace in next line
   components:
-    - match: (?=^\s*(pure\b)?\s*\bcomponent\s+\b{{valid_name}}(\s*{{super_spec}})*\s*\{)
+    - match: (?=^\s*(pure\b)?\s*\bcomponent\s+\b{{valid_name}}(\s*{{super_spec}})*) # \s*\{)
       push: component-declaration
-    - match: (?=^\s*extend\s*\bcomponent\s+\b{{valid_name}}\b\s*\{)
+    - match: (?=^\s*extend\s*\bcomponent\s+\b{{valid_name}}\b) #\s*\{)
       push: component-declaration
 
   component-declaration:
     - meta_scope: meta.class.declaration.pss
-    - match: (pure\b)?\s*\b(component)\s+{{valid_name}}\b(?:\s*{{super_spec}})*\s*(\{)
+    - match: (pure\b)?\s*\b(component)\s+{{valid_name}}\b(?:\s*{{super_spec}})* # \s*(\{)
       captures:
         1: keyword.declaration.pure.pss
         2: keyword.declaration.class.pss
         3: entity.name.class.pss
         4: entity.name.superclasses.pss
-        5: punctuation.section.begin.pss
+    - match: (extend)\s*\b(component)\s+\b{{valid_name}}\b #\s*(\{)
+      captures:
+        1: keyword.declaration.extend.pss
+        2: keyword.declaration.class.pss
+        3: entity.name.class.pss
+    - match: (\{)
+      captures:
+        1: punctuation.section.begin.pss
       set:
         - meta_content_scope: meta.class.body.pss
         - match: (\})
@@ -142,45 +152,27 @@ contexts:
         - include: exec-blocks
         - include: code
 
-    - match: (extend)\s*\b(component)\s+\b{{valid_name}}\b\s*(\{)
-      captures:
-        1: keyword.declaration.extend.pss
-        2: keyword.declaration.class.pss
-        3: entity.name.class.pss
-        4: punctuation.section.begin.pss
-      set:
-        - meta_content_scope: meta.class.body.pss
-        - match: (\})
-          captures:
-            1: punctuation.section.end.pss
-          pop: true
-        - include: actions
-        - include: enum-declaration
-        - include: covergroups
-        - include: structs
-        - include: exec-blocks
-        - include: code
-
   # B.2 Action
   # note: abstract action declarations and extensions appear also in package scope
-  # TODO: curly-brace in next line
   actions:
-    - match: (?=^\s*\babstract\s+\baction\s+\b{{valid_name}}\b(\s*{{super_spec}})*\s*\{)
+    - match: (?=^\s*\babstract\s+\baction\s+\b{{valid_name}}\b(\s*{{super_spec}})*) #\s*\{)
       push: action-abstract-declaration
-    - match: (?=^\s*\baction\s+\b{{valid_name}}\b(\s*{{super_spec}})*\s*\{)
+    - match: (?=^\s*\baction\s+\b{{valid_name}}\b(\s*{{super_spec}})*) #\s*\{)
       push: action-declaration
-    - match: (?=^\s*extend\s*\baction\s+\b{{valid_name}}\b\s*\{)
+    - match: (?=^\s*extend\s*\baction\s+\b{{valid_name}}\b) #\s*\{)
       push: action-extend-declaration
 
   action-abstract-declaration:
     - meta_scope: meta.action.declaration.pss
-    - match: \b(abstract)\s*\b(action)\s+\b{{valid_name}}\b(?:\s*{{super_spec}})*\s*(\{)
+    - match: \b(abstract)\s*\b(action)\s+\b{{valid_name}}\b(?:\s*{{super_spec}})* #\s*(\{)
       captures:
         1: keyword.declaration.abstract.pss
         2: keyword.declaration.action.pss
         3: entity.name.action.pss
         4: entity.name.superactions.pss
-        5: punctuation.section.begin.pss
+    - match: (\{)
+      captures:
+        1: punctuation.section.begin.pss
       set:
         - meta_content_scope: meta.action.body.pss
         - match: (\})
@@ -195,12 +187,15 @@ contexts:
 
   action-declaration:
     - meta_scope: meta.action.declaration.pss
-    - match: \b(action)\s+\b{{valid_name}}\b(?:\s*{{super_spec}})*\s*(\{)
+    - match: \b(action)\s+\b{{valid_name}}\b(?:\s*{{super_spec}})* #\s*(\{)
       captures:
         1: keyword.declaration.action.pss
         2: entity.name.action.pss
         3: entity.name.superactions.pss
-        4: punctuation.section.begin.pss
+        #4: punctuation.section.begin.pss
+    - match: (\{)
+      captures:
+        1: punctuation.section.begin.pss
       set:
         - meta_content_scope: meta.action.body.pss
         - match: (\})
@@ -214,12 +209,14 @@ contexts:
         - include: code
 
   action-extend-declaration:
-    - match: (extend)\s*\b(action)\s+\b{{valid_name}}\b\s*(\{)
+    - match: (extend)\s*\b(action)\s+\b{{valid_name}}\b # \s*(\{)
       captures:
         1: keyword.declaration.extend.pss
         2: keyword.declaration.action.pss
         3: entity.name.action.pss
-        4: punctuation.section.begin.pss
+    - match: (\{)
+      captures:
+        1: punctuation.section.begin.pss
       set:
         - meta_content_scope: meta.action.body.pss
         - match: (\})
@@ -232,22 +229,26 @@ contexts:
         - include: constraint-declaration
         - include: code
 
-  # TODO: curly-brace in next line
   activity:
     - meta_scope: meta.activity.declaration.pss
-    - match: ^\s*(activity)\s*(\{)
+    - match: ^\s*(activity) #\s*(\{)
       captures:
         1: keyword.declaration.activity.pss
-        2: punctuation.section.begin.pss
+        # 2: punctuation.section.begin.pss
       push: activity-statement
 
   activity-statement:
     - meta_scope: meta.activity.body.pss
-    - match: (\})
+    - match: (\{)
       captures:
-        1: punctuation.section.end.pss
-      pop: true
-    - include: code
+        1: punctuation.section.begin.pss
+      set:
+        - meta_content_scope: meta.activity.body.pss
+        - match: (\})
+          captures:
+            1: punctuation.section.end.pss
+          pop: true
+        - include: code
 
   # B.4 Exec blocks
   exec-blocks:
@@ -293,25 +294,26 @@ contexts:
     - include: code
 
   exec-file:
-    - meta_scope: meta.exec.file.pss
+    - meta_scope: markup.raw.block meta.exec.file.pss
     - match: '"""'
       captures:
         1: punctuation.section.end.pss
       pop: true
 
   # B.3 Struct (can be struct, buffer, stream, state, resource)
-  # TODO: curly-brace in next line
   structs:
-    - match: (?=^\s*\b({{object_kinds}})\s+\b{{valid_name}}\b(\s*{{super_spec}})*\s*\{)
+    - match: (?=^\s*\b({{object_kinds}})\s+\b{{valid_name}}\b(\s*{{super_spec}})*) #*\s*\{)
       push: struct-declaration
 
   struct-declaration:
-    - match: \b({{object_kinds}})\s+\b{{valid_name}}\b(?:\s*{{super_spec}})*\s*(\{)
+    - match: \b({{object_kinds}})\s+\b{{valid_name}}\b(?:\s*{{super_spec}})* #\s*(\{)
       captures:
         1: keyword.declaration.struct.pss
         2: entity.name.struct.pss
         3: entity.name.superactions.pss
-        4: punctuation.section.begin.pss
+    - match: (\{)
+      captures:
+        1: punctuation.section.begin.pss
       set:
         - meta_content_scope: meta.struct.body.pss
         - match: (\})
@@ -325,38 +327,43 @@ contexts:
 
   # B.13 Data Types
   enum-declaration:
-    - match: \b(enum)\s+\b{{valid_name}}\b\s*(\{)
+    - match: \b(enum)\s+\b{{valid_name}}\b #\s*(\{)
       captures:
         1: keyword.declaration.enum.pss
         2: storage.type.pss
-        3: punctuation.section.begin.pss
+        # 3: punctuation.section.begin.pss
       push: enum-values-declaration
 
   enum-values-declaration:
     - meta_content_scope: meta.type.enum.pss
-    - match: (\s*,)
+    - match: (\{)
       captures:
-        1: punctuation.separator.pss
-    - match: (\s*,)?(?:\s*{{valid_id}}\s*)(=)?
-      captures:
-        1: punctuation.separator.pss
-        2: constant.other.enum.pss
-        3: keyword.operator.assignment.pss
-    - match: (\})
-      captures:
-        1: punctuation.section.end.pss
-      pop: true
-    - include: priority-scopes
+        1: punctuation.section.begin.pss
+      set:
+        - meta_content_scope: meta.type.enum.pss
+        - match: (\s*,)
+          captures:
+            1: punctuation.separator.pss
+        - match: (\s*,)?(?:\s*{{valid_id}}\s*)(=)?
+          captures:
+            1: punctuation.separator.pss
+            2: constant.other.enum.pss
+            3: keyword.operator.assignment.pss
+        - match: (\})
+          captures:
+            1: punctuation.section.end.pss
+          pop: true
+        - include: priority-scopes
 
   # B.15 Coverage declaration (appears in package, component, struct, action)
   covergroups:
     - meta_scope: meta.type.covergroup.pss
 
     # inline covergroup instantiation
-    - match: \b(covergroup)\s+(\{)
+    - match: \b(covergroup) # \s+(\{)
       captures:
         1: keyword.declaration.covergroup.pss
-        2: punctuation.section.begin.pss
+        # 2: punctuation.section.begin.pss
       push: covergroup-instantiation
 
     # covergroup declaration
@@ -373,13 +380,18 @@ contexts:
 
   covergroup-instantiation:
     - meta_content_scope: meta.type.covergroup.pss
-    - match: (\})\s*(?:{{valid_id}})?
+    - match: (\{)
       captures:
-        1: punctuation.section.end.pss
-        2: variable.other.covergroup.pss
-      pop: true
-    - include: priority-scopes
-    - include: default-scopes
+        1: punctuation.section.begin.pss
+      set:
+        - meta_content_scope: meta.type.covergroup.pss
+        - match: (\})\s*(?:{{valid_id}})?
+          captures:
+            1: punctuation.section.end.pss
+            2: variable.other.covergroup.pss
+          pop: true
+        - include: priority-scopes
+        - include: default-scopes
 
   # B.14 Constraints declaration (appears in struct, action)
   # Keep it simple, only match part before block
@@ -649,7 +661,7 @@ contexts:
       pop: true
 
   triple-string:
-    - meta_scope: string.quoted.triple.pss
+    - meta_scope: markup.raw.block string.quoted.triple.pss
     - meta_include_prototype: false
     - match: '"""'
       scope: punctuation.definition.triple-string.end.pss
@@ -776,6 +788,5 @@ contexts:
 
     - scope: keyword.other.override.pss
       match: \b(override|instance)\b
-
 
 # end
