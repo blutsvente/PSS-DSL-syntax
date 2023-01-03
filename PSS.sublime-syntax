@@ -481,6 +481,9 @@ contexts:
     - match: \b(type|struct)\b
       captures:
         1: storage.type.pss
+    - match: \s(\.\.\.)\s
+      captures:
+         1: keyword.other.ellipsis.pss
     - include: default-scopes
 
   function-call:

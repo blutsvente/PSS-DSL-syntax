@@ -40,4 +40,20 @@ component foo : my_package {
    struct foo {
 
    }
+
+   function string format_string(string format, type ... args);
+   function void bar() {
+      string name = "John";
+      int age = 55;
+      string result;
+      result = format_string("name %s: age %d", name, age);
+   }
+}
+
+package generic_functions {
+  function int compute_value
+  (
+   int val,
+   output int out_val
+  );
 }
