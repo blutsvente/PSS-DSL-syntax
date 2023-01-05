@@ -486,7 +486,7 @@ contexts:
         1: storage.type.pss
     - match: \s(\.\.\.)\s
       captures:
-         1: keyword.other.ellipsis.pss
+         1: keyword.other.pss
     - include: default-scopes
 
   function-call:
@@ -511,7 +511,7 @@ contexts:
     - include: priority-scopes
     - match: \(\s*(void)\s*\)
       captures:
-        1: keyword.other.void-cast.pss
+        1: keyword.other.pss
     - include: stray-brackets-code
     - include: default-scopes
     - include: function-call
@@ -771,28 +771,28 @@ contexts:
     - scope: keyword.control.activity.pss
       match: \b(do|with|parallel|join_branch|join_select|join_none|join_first|select|replicate|symbol|bind)\b
 
-    - scope: keyword.other.coverage.pss
+    - scope: keyword.other.pss
       match: \b(type_option|option|coverpoint|cross|iff|default|bins|illegal_bins|ignore_bins)\b
 
-    - scope: keyword.other.coverage.options.pss
+    - scope: keyword.other.pss
       match: \b(weight|goal|name|comment|at_least|detect_overlap|auto_bin_max|per_instance)\b
 
     - scope: keyword.control.pss
       match: \b(sequence|repeat|while|schedule|foreach|forall|if|else|match|default|break|continue)
 
-    - scope: keyword.other.conditional-compilation.pss
+    - scope: keyword.other.pss
       match: \b(compile|assert|has)\b
 
-    - scope: keyword.other.flow-declaration.pss
+    - scope: keyword.other.pss
       match: \b(input|output)\b
 
-    - scope: keyword.other.resource-declaration.pss
+    - scope: keyword.other.pss
       match: \b(lock|share)\b
 
-    - scope: keyword.other.type-param.pss
+    - scope: keyword.other.pss
       match: \btype\b
 
-    - scope: keyword.other.override.pss
+    - scope: keyword.other.pss
       match: \b(override|instance)\b
 
 # end
