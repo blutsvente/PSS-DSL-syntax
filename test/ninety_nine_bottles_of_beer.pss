@@ -5,7 +5,7 @@ extend component pss_top {
    
    static const int n_verses = 100;
 
-   action print_one_line {
+   action print_one_verse {
       rand int verse_number;
       rand string line1;
       rand string line2;
@@ -41,12 +41,12 @@ extend component pss_top {
    }
 
    action print_lyrics {
-      print_one_line a_line;
+      print_one_verse a_verse;
 
       activity {
          schedule {
             repeat (i:n_verses) {
-               a_line with { verse_number == i; }
+               a_verse with { verse_number == i; }
             }
          }
       }
