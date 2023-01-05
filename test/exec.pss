@@ -19,7 +19,8 @@ component test_exec {
       }
    """
 
-   exec   file  "scripts/bla.sh" = """
+   exec   file  "scripts/bla.sh" =
+   """
    This is a plain-text file!
 
    """

@@ -266,13 +266,16 @@ contexts:
         0: punctuation.section.code.end.pss
 
     # plain-file
-    - match: '^\s*(exec)\s+(file\s+)("[^"]*")\s*=\s*(""")'
+    - match: '^\s*(exec)\s+(file\s+)("[^"]*")\s*='
       captures:
         1: keyword.declaration.exec.pss
         2: keyword.declaration.exec_target_file.pss
         3: entity.name.filename.pss
-        4: punctuation.section.begin.pss
-      push: exec-file
+      push:
+        - match: (""")
+          captures:
+            1: punctuation.section.begin.pss
+          set: exec-file
 
     # native exec
     - match: '^\s*(exec)\s+\b({{exec_kinds}})'
