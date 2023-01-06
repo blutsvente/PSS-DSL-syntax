@@ -1,5 +1,5 @@
-# PSS-DSL-syntax
-PSS-DSL (Portable Stimulus Specification domain-specific language) syntax for Sublime Text 3+4.
+# PSS DSL syntax
+PSS DSL (Portable Stimulus Specification domain-specific language) syntax for Sublime Text 3+4.
 It supports highlighting of embedded C-code in exec blocks.
 
 ## Manual Install

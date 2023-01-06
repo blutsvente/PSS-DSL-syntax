@@ -1,2 +1,4 @@
-/.git* export-ignore
-/test export-ignore
+# Package Exclusion Rules
+.git* export-ignore
+test/** export-ignore
+collaterals/** export-ignore
