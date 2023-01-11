@@ -26,7 +26,8 @@ component x2 {
       int x;
       bit[31:0] foo = 32'haffe;
       bit[6:0] bin_number = 'b10101;
-      bit[7:0] oct_number = 8'o710;
+      bit [ 7 : 0 ] oct_number = 8'o710;
+      bit [5] bxx;
       int hex2 = 0x222_3233;
       int oct2 = 0175;
       bool y = false;
