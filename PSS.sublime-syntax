@@ -19,10 +19,10 @@ variables:
   collection_types: array|list|map|set
   built_in_types: ({{scalar_types}}|{{collection_types}})
   built_in_constants: null|true|false
-  built_in_functions: message|appendf
+  built_in_functions: message|appendf|error|fatal
   access: public|protected|private
   attribs: rand|static\sconst|static|const # cannot use \s+ here
-  exec_kinds: pre_solve|post_solve|body|header|declaration|run_start|run_end|init_down|init_up|init
+  exec_kinds: pre_solve|post_solve|body|header|declaration|run_start|run_end|init_down|init_up|init|post_allocate
   object_kinds: struct|buffer|stream|state|resource
   bin_digit: '[0-1]'
   oct_digit: '[0-7]'
@@ -49,6 +49,7 @@ variables:
   valid_attribs_no_rand: (?:(?:static\s+const|static|const)\s+)
   platform_qualifier: (?:target|solve)
   language_identifier: '[A-Z]+'
+  function_qualifier: pure|static
 
 contexts:
   main:
@@ -426,9 +427,9 @@ contexts:
             1: punctuation.section.begin.pss
           set: function-parameters
 
-    - match: \b(pure\s+)?(function\s+)\b(void\s+)(?:{{valid_name}})
+    - match: \b((?:{{function_qualifier}})\s+)?(function\s+)\b(void\s+)(?:{{valid_name}})
       captures:
-        1: keyword.declaration.pure.pss
+        1: keyword.declaration.function-qualifer.pss
         2: keyword.declaration.function.pss
         3: meta.method.return-type.pss storage.type.pss
         4: meta.method.identifier.pss entity.name.function.pss
@@ -438,9 +439,9 @@ contexts:
             1: punctuation.section.begin.pss
           set: function-parameters
 
-    - match: \b(pure\s+)?(function\s+)(?:{{valid_scalar_type}}\s+)(?:{{valid_name}})
+    - match: \b((?:{{function_qualifier}})\s+)?(function\s+)(?:{{valid_scalar_type}}\s+)(?:{{valid_name}})
       captures:
-        1: keyword.declaration.pure.pss
+        1: keyword.declaration.function-qualifer.pss
         2: keyword.declaration.function.pss
         3: meta.method.return-type.pss storage.type.pss
         4: meta.method.return-type.pss storage.modifier.range.pss
@@ -490,7 +491,7 @@ contexts:
     - include: default-scopes
 
   function-call:
-    - match: \b(?:{{valid_id}})\s*(\()
+    - match: \b(?:{{valid_name}})\s*(\()
       captures:
         1: meta.method.identifier.pss variable.function.pss
         2: punctuation.section.begin.pss

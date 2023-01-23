@@ -49,3 +49,14 @@ component mem_xfer {
     } 
   }
 }
+
+component C1_c {
+  static function void foo();
+}
+component C2_c {
+  action A2 {
+    exec body {
+      C1_c::foo();
+    }
+  }
+}
