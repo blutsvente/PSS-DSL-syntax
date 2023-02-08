@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.2] - unreleased
 
 ### Changed
-- added PSS 2.1 keywords
+- added some PSS 2.1 keywords
+- exec target language match extended to support schemes
 - improved function-declaration/function-call matching
 
 ## [1.0.1] - 2023-01-06

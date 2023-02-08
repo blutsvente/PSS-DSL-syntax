@@ -9,7 +9,7 @@ component test_exec {
 
    }
 
-   exec body  C = """
+   exec body  PTHREAD  = """
       DpiCpuImportInterface *dpiCpuImport = dynamic_cast<DpiCpuImportInterface *>(sc_core::sc_find_object(path));
       if (!dpiCpuImport)
       {

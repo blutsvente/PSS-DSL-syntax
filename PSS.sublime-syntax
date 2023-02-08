@@ -8,7 +8,7 @@ scope: source.pss
 version: 2
 
 # Syntax for the PSS domain-specific-language
-# Note: Numbered comments refer to chapters in the PSS Specification 2.0
+# Note: Numbered comments refer to chapters in the PSS Specification 2.0+
 # See also: https://www.sublimetext.com/docs/3/syntax.html and https://www.sublimetext.com/docs/3/scope_naming.html
 # Note to self:  Ctrl+Alt+Shift+P (Windows/Linux) -> scope under caret (MacOS: Ctrl+Shift+P)
 # TODO: #B.12 Template types
@@ -22,7 +22,7 @@ variables:
   built_in_functions: message|appendf|error|fatal
   access: public|protected|private
   attribs: rand|static\sconst|static|const # cannot use \s+ here
-  exec_kinds: pre_solve|post_solve|body|header|declaration|run_start|run_end|init_down|init_up|init|post_allocate
+  exec_kinds: pre_solve|post_solve|body|pre_body|header|declaration|run_start|run_end|init_down|init_up|init|post_allocate
   object_kinds: struct|buffer|stream|state|resource
   bin_digit: '[0-1]'
   oct_digit: '[0-7]'
@@ -50,6 +50,7 @@ variables:
   platform_qualifier: (?:target|solve)
   language_identifier: '[A-Z]+'
   function_qualifier: pure|static
+  target_language: '[A-Z](?:[_\w]*)\s*'
 
 contexts:
   main:
@@ -254,11 +255,11 @@ contexts:
   # B.4 Exec blocks
   exec-blocks:
     # target-language, support only triple-quoted strings
-    - match: '^\s*(exec)\s+\b({{exec_kinds}})\s*\b(C\s*)=\s*(""")'
+    - match: '^\s*(exec)\s+\b({{exec_kinds}})\s*\b({{target_language}})=\s*(""")'
       captures:
         1: keyword.declaration.exec.pss
         2: keyword.declaration.exec_kind.pss
-        3: keyword.declaration.exec.target_language_c.pss
+        3: keyword.declaration.exec.target_language_scheme.pss
         4: punctuation.section.begin.pss
       embed: scope:source.c++
       embed_scope: meta.embedded.c++.pss
