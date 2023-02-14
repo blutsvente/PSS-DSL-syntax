@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improved function-declaration/function-call matching
 
 ### Added
+- match function-calls inside of function-call-parameters scope
 - added some PSS 2.1 keywords
 
 ## [1.0.1] - 2023-01-06
