@@ -95,11 +95,10 @@ contexts:
   # B.1 Package
   package:
   # Note: extensions may appear in (global unnamed) package and component decls
-    - match: \b(package)\s+\b{{valid_name}}\b # \s*(\{)
+    - match: \b(package)\s+\b{{valid_name}}\b
       captures:
         1: keyword.declaration.namespace.pss
         2: entity.name.pss
-        # 3: punctuation.section.begin.pss
       push: package-declaration
 
   package-declaration:
@@ -125,13 +124,13 @@ contexts:
 
   component-declaration:
     - meta_scope: meta.class.declaration.pss
-    - match: (pure\b)?\s*\b(component)\s+{{valid_name}}\b(?:\s*{{super_spec}})* # \s*(\{)
+    - match: (pure\b)?\s*\b(component)\s+{{valid_name}}\b(?:\s*{{super_spec}})*
       captures:
         1: keyword.declaration.pure.pss
         2: keyword.declaration.class.pss
         3: entity.name.class.pss
         4: entity.name.superclasses.pss
-    - match: (extend)\s*\b(component)\s+\b{{valid_name}}\b #\s*(\{)
+    - match: (extend)\s*\b(component)\s+\b{{valid_name}}\b
       captures:
         1: keyword.declaration.extend.pss
         2: keyword.declaration.class.pss
@@ -157,16 +156,16 @@ contexts:
   # B.2 Action
   # note: abstract action declarations and extensions appear also in package scope
   actions:
-    - match: (?=^\s*\babstract\s+\baction\s+\b{{valid_name}}\b(\s*{{super_spec}})*) #\s*\{)
+    - match: (?=^\s*\babstract\s+\baction\s+\b{{valid_name}}\b(\s*{{super_spec}})*)
       push: action-abstract-declaration
-    - match: (?=^\s*\baction\s+\b{{valid_name}}\b(\s*{{super_spec}})*) #\s*\{)
+    - match: (?=^\s*\baction\s+\b{{valid_name}}\b(\s*{{super_spec}})*)
       push: action-declaration
-    - match: (?=^\s*extend\s*\baction\s+\b{{valid_name}}\b) #\s*\{)
+    - match: (?=^\s*extend\s*\baction\s+\b{{valid_name}}\b)
       push: action-extend-declaration
 
   action-abstract-declaration:
     - meta_scope: meta.action.declaration.pss
-    - match: \b(abstract)\s*\b(action)\s+\b{{valid_name}}\b(?:\s*{{super_spec}})* #\s*(\{)
+    - match: \b(abstract)\s*\b(action)\s+\b{{valid_name}}\b(?:\s*{{super_spec}})*
       captures:
         1: keyword.declaration.abstract.pss
         2: keyword.declaration.action.pss
@@ -189,12 +188,12 @@ contexts:
 
   action-declaration:
     - meta_scope: meta.action.declaration.pss
-    - match: \b(action)\s+\b{{valid_name}}\b(?:\s*{{super_spec}})* #\s*(\{)
+    - match: \b(action)\s+\b{{valid_name}}\b(?:\s*{{super_spec}})*
       captures:
         1: keyword.declaration.action.pss
         2: entity.name.action.pss
         3: entity.name.superactions.pss
-        #4: punctuation.section.begin.pss
+
     - match: (\{)
       captures:
         1: punctuation.section.begin.pss
@@ -211,7 +210,7 @@ contexts:
         - include: code
 
   action-extend-declaration:
-    - match: (extend)\s*\b(action)\s+\b{{valid_name}}\b # \s*(\{)
+    - match: (extend)\s*\b(action)\s+\b{{valid_name}}\b
       captures:
         1: keyword.declaration.extend.pss
         2: keyword.declaration.action.pss
@@ -307,15 +306,18 @@ contexts:
 
   # B.3 Struct (can be struct, buffer, stream, state, resource)
   structs:
-    - match: (?=^\s*\b({{object_kinds}})\s+\b{{valid_name}}\b(\s*{{super_spec}})*) #*\s*\{)
+    - match: (?=^\s*\b({{object_kinds}})\s+\b{{valid_name}}\b(\s*{{super_spec}})*)
+      push: struct-declaration
+    - match: (?=^\s*extend\s*\b({{object_kinds}})\s+\b{{valid_name}}\b(\s*{{super_spec}})*)
       push: struct-declaration
 
   struct-declaration:
-    - match: \b({{object_kinds}})\s+\b{{valid_name}}\b(?:\s*{{super_spec}})* #\s*(\{)
+    - match: \b(extend\s*)?({{object_kinds}})\s+\b{{valid_name}}\b(?:\s*{{super_spec}})*
       captures:
-        1: keyword.declaration.struct.pss
-        2: entity.name.struct.pss
-        3: entity.name.superactions.pss
+        1: keyword.declaration.extend.pss
+        2: keyword.declaration.struct.pss
+        3: entity.name.struct.pss
+        4: entity.name.superactions.pss
     - match: (\{)
       captures:
         1: punctuation.section.begin.pss
@@ -332,11 +334,10 @@ contexts:
 
   # B.13 Data Types
   enum-declaration:
-    - match: \b(enum)\s+\b{{valid_name}}\b #\s*(\{)
+    - match: \b(enum)\s+\b{{valid_name}}\b
       captures:
         1: keyword.declaration.enum.pss
         2: storage.type.pss
-        # 3: punctuation.section.begin.pss
       push: enum-values-declaration
 
   enum-values-declaration:

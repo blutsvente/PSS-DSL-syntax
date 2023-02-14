@@ -57,6 +57,13 @@ extend action a3 {
    // Can extend actions in package scope!
 }
 
+extend buffer sml_data_buff {
+   constraint mem_seg.size in [1..4];
+}
+
+buffer foo : bla_pkg:foo_base {
+
+}
 
 package other
 {
