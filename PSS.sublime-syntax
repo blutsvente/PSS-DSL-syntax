@@ -500,6 +500,7 @@ contexts:
       push: function-call-parameters
 
   function-call-parameters:
+    - include: function-call
     - match: (\))
       captures:
         1: punctuation.section.end.pss

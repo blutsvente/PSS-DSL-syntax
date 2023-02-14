@@ -7,6 +7,12 @@ package external_functions_pkg {
     bit[31:0] src, bit[31:0] dst, bit[31:0] size = 0xa
   );
 
+  function bit[8] read8(addr_handle_t hndl) {
+     bit[8] data;
+     seqer_if.pss_read_byte_seq(addr_value(hndl),data);
+     return data;
+  };
+
   pure function void no_params()
   {
     int count = 0;
