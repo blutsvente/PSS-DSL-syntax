@@ -299,6 +299,7 @@ contexts:
 
   exec-file:
     - meta_scope: markup.raw.block meta.exec.file.pss
+    - meta_include_prototype: false
     - match: '"""'
       captures:
         1: punctuation.section.end.pss

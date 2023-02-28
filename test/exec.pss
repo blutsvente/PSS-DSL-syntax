@@ -24,4 +24,22 @@ component test_exec {
    This is a plain-text file!
 
    """
+
+         exec file "perspec_runargs.f" = """
+
+// Call the generated 'perspec_main' task
+-top perspec_invoke
+
+# Perspec host-C test code
+${PERSPEC_TEST_DIR}/*.c
+-I${PERSPEC_TEST_DIR}
+-I${PERSPEC_TEST_DIR}/sv
+-64
+-loadvpi ${PERSPEC_HOME}/lib/linux64/libperspec_utils.so:perspec_boot
+
+"""
+
+   exec body {
+      // just to check that the previous context was popped correctly
+   }
 }
