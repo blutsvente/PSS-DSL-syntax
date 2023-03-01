@@ -42,4 +42,13 @@ ${PERSPEC_TEST_DIR}/*.c
    exec body {
       // just to check that the previous context was popped correctly
    }
+
+   exec header PTHREAD = """
+      printf("bla");
+   """
+
+   exec init_down {
+      sequence_dispatcher_if.uvm_path = "uvm_test_top";
+   }
+
 }

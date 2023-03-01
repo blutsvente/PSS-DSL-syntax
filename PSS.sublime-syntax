@@ -50,7 +50,7 @@ variables:
   platform_qualifier: (?:target|solve)
   language_identifier: '[A-Z]+'
   function_qualifier: pure|static
-  target_language: '[A-Z](?:[_\w]*)\s*'
+  target_language: '[A-Ze](?:[_\w]*)\s*'
 
 contexts:
   main:
@@ -783,7 +783,7 @@ contexts:
       match: \b(weight|goal|name|comment|at_least|detect_overlap|auto_bin_max|per_instance)\b
 
     - scope: keyword.control.pss
-      match: \b(sequence|repeat|while|schedule|foreach|forall|if|else|match|default|break|continue)
+      match: \b(sequence|repeat|while|schedule|foreach|forall|if|else|match|default|break|continue)\b
 
     - scope: keyword.other.pss
       match: \b(compile|assert|has)\b
