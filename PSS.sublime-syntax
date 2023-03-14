@@ -392,6 +392,12 @@ contexts:
         1: punctuation.section.begin.pss
       set:
         - meta_content_scope: meta.type.covergroup.pss
+        - match: \b(weight|goal|name|comment|at_least|detect_overlap|auto_bin_max|per_instance)\b
+          captures:
+            1: keyword.other.pss
+        - match: \b(type_option|option|coverpoint|cross|iff|default|bins|illegal_bins|ignore_bins)\b
+          captures:
+            1: keyword.other.pss
         - match: (\})\s*(?:{{valid_id}})?
           captures:
             1: punctuation.section.end.pss
@@ -775,12 +781,6 @@ contexts:
 
     - scope: keyword.control.activity.pss
       match: \b(do|with|parallel|join_branch|join_select|join_none|join_first|select|replicate|symbol|bind)\b
-
-    - scope: keyword.other.pss
-      match: \b(type_option|option|coverpoint|cross|iff|default|bins|illegal_bins|ignore_bins)\b
-
-    - scope: keyword.other.pss
-      match: \b(weight|goal|name|comment|at_least|detect_overlap|auto_bin_max|per_instance)\b
 
     - scope: keyword.control.pss
       match: \b(sequence|repeat|while|schedule|foreach|forall|if|else|match|default|break|continue)\b

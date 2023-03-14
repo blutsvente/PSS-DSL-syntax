@@ -29,12 +29,13 @@ component foo : my_package {
       // Covergroup inline instantiation
       bit is_enabled = 0;
       covergroup {
+         option.name = "cover";
          option.at_least = 2;
          c: coverpoint i iff (is_enabled);
       } cg1_inst;
 
       const int pi = 3.141;
-
+S
    }
 
    struct foo {
@@ -46,7 +47,8 @@ component foo : my_package {
       string name = "John";
       int age = 55;
       string result;
-      result = format_string("name %s: age %d", name, age);
+      struct xy;
+      result = format_string("name %s: age %d", name, age, xy.at_least);
    }
 }
 
