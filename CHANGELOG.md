@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - minor fixes
 
 ### Added
-- added compile-if scope
+- added compile-if and pools scope
 
 ## [1.0.2] - 2023-02-17
 
