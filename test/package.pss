@@ -70,5 +70,22 @@ package other
 
 }
 
+package config_pkg {
+   const bool PROTOCOL_VER_1_2 = false;
+
+   compile if (config_pkg::PROTOCOL_VER_1_2) {
+      action new_flow {
+         activity { }
+      }
+   }
+   else {
+      compile assert (bla==1);
+      action old_flow {
+         activity {}
+      }
+   }
+}
+
+
 
 // end

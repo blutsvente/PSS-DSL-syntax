@@ -47,12 +47,21 @@ component mem_xfer {
 
     constraint in_buff.size == out_buff.size;
 
-    exec body {
-      int a = 0x5;
-      // function calling
-      transfer_mem(in_buff.addr, out_buff.addr, in_buff.size, 32'hff);
-      (void) alloc_addr(0x0, "test");
-    } 
+    compile if (compile has (bla==0)) {
+      compile assert (bla == 0);
+      exec body {
+        int a = 0x5;
+        // function calling
+        transfer_mem(in_buff.addr, out_buff.addr, in_buff.size, 32'hff);
+        (void) alloc_addr(0x0, "test");
+
+        if (a==0) {
+          do_this();
+        } else {
+          do_that();
+        }
+      }
+    }
   }
 }
 

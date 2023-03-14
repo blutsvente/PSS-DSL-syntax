@@ -21,6 +21,8 @@ enum numbering_e
 }
 
 component x2 {
+   resource channel_r {};
+   pool [3]  channel_r  channel_p;
 
    buffer mem_buffer {
       int x;

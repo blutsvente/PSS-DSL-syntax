@@ -56,6 +56,7 @@ contexts:
   main:
    - include: imports
    - include: package
+   - include: compile-if
    - include: actions
    - include: enum-declaration
    - include: function-declaration
@@ -114,6 +115,37 @@ contexts:
           pop: true
         - include: main
 
+  # B.16 Conditional compilation (in package, component, action)
+  compile-if:
+    - match: \b(compile\s+if|else)\b
+      captures:
+        1: keyword.control.compile_if.pss
+      push: compile-if-body
+
+  compile-if-body:
+    - match: \b(compile\s+has)\b
+      captures:
+        1: keyword.control.compile_if.pss
+    - match: (\{)
+      captures:
+        1: punctuation.section.begin.pss
+      set:
+        - meta_content_scope: meta.compile_if.body.pss
+        - match: \b(compile\s+assert)\b
+          captures:
+            1: keyword.control.compile_if.pss
+        - match: (\})
+          captures:
+            1: punctuation.section.end.pss
+          pop: true
+        - include: activity
+        - include: exec-blocks
+        - include: constraint-declaration
+        - include: compile-if
+        - include: main
+
+
+
   # B.8 Component
   # TODO: template_param_decl_list
   components:
@@ -149,9 +181,20 @@ contexts:
         - include: enum-declaration
         - include: function-declaration
         - include: covergroups
+        - include: pools
         - include: structs
         - include: exec-blocks
         - include: code
+
+  # pools (only in components)
+  pools:
+    - match: '^\s*\b(pool)(\s*(?:\[\s*\S+\s*\]\s*))?\s*(?:{{valid_name}})\s+(?:{{valid_id}}\s*)(;)'
+      captures:
+        1: storage.type.pool.pss
+        2: storage.modifier.range.pss
+        3: storage.type.pss
+        4: variable.other.member.pss
+        5: punctuation.terminator.pss
 
   # B.2 Action
   # note: abstract action declarations and extensions appear also in package scope
@@ -180,6 +223,7 @@ contexts:
           captures:
             1: punctuation.section.end.pss
           pop: true
+        - include: compile-if
         - include: activity
         - include: exec-blocks
         - include: covergroups
@@ -203,6 +247,7 @@ contexts:
           captures:
             1: punctuation.section.end.pss
           pop: true
+        - include: compile-if
         - include: activity
         - include: exec-blocks
         - include: covergroups
@@ -224,6 +269,7 @@ contexts:
           captures:
             1: punctuation.section.end.pss
           pop: true
+        - include: compile-if
         - include: activity
         - include: exec-blocks
         - include: covergroups
@@ -784,9 +830,6 @@ contexts:
 
     - scope: keyword.control.pss
       match: \b(sequence|repeat|while|schedule|foreach|forall|if|else|match|default|break|continue)\b
-
-    - scope: keyword.other.pss
-      match: \b(compile|assert|has)\b
 
     - scope: keyword.other.pss
       match: \b(input|output)\b
