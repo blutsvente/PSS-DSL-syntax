@@ -47,6 +47,11 @@ component mem_xfer {
 
     constraint in_buff.size == out_buff.size;
 
+    constraint xyz {
+      a -> b;
+      unique {a,b};
+    }
+
     compile if (compile has (bla==0)) {
       compile assert (bla == 0);
       exec body {

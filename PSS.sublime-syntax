@@ -783,6 +783,9 @@ contexts:
     - scope: keyword.operator.assignment.pss
       match: '(=|\+=|-=|&=|\|=|>>=|<<=)'
 
+    - scope: keyword.operator.constraint.pss
+      match: '(->)'
+
     - scope: keyword.operator.comparison.pss
       match: (==|!=|>|<|===|!===|>=|<=)
 
@@ -829,7 +832,7 @@ contexts:
       match: \b(do|with|parallel|join_branch|join_select|join_none|join_first|select|replicate|symbol|bind)\b
 
     - scope: keyword.control.pss
-      match: \b(sequence|repeat|while|schedule|foreach|forall|if|else|match|default|break|continue)\b
+      match: \b(sequence|repeat|while|schedule|foreach|forall|unique|if|else|match|default|break|continue)\b
 
     - scope: keyword.other.pss
       match: \b(input|output)\b
