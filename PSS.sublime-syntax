@@ -59,6 +59,7 @@ contexts:
    - include: compile-if
    - include: actions
    - include: enum-declaration
+   - include: typedef-declaration
    - include: function-declaration
    - include: components
    - include: structs
@@ -380,12 +381,31 @@ contexts:
         - include: code
 
   # B.13 Data Types
+  # enum
   enum-declaration:
     - match: \b(enum)\s+\b{{valid_name}}\b
       captures:
         1: keyword.declaration.enum.pss
         2: storage.type.pss
       push: enum-values-declaration
+
+  # typedef
+  typedef-declaration:
+    # scalars
+    - match: '^\s*(typedef)\s+\b(?:{{valid_scalar_type}})\s+(?:{{valid_id}}\s*)(;|\=)'
+      captures:
+        1: keyword.declaration.type.pss
+        2: storage.type.pss
+        3: storage.modifier.range.pss
+        4: storage.type.pss
+        5: punctuation.terminator.pss
+    # other types
+    - match: '^\s*(typedef)\s+\b(?:{{valid_name}})\s+(?:{{valid_id}}\s*)(;|\=)'
+      captures:
+        1: keyword.declaration.type.pss
+        2: storage.type.pss
+        3: storage.type.pss
+        4: punctuation.terminator.pss
 
   enum-values-declaration:
     - meta_content_scope: meta.type.enum.pss

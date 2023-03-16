@@ -61,7 +61,7 @@ extend buffer sml_data_buff {
    constraint mem_seg.size in [1..4];
 }
 
-buffer foo : bla_pkg:foo_base {
+buffer foo : bla_pkg::foo_base {
 
 }
 

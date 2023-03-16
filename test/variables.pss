@@ -20,6 +20,12 @@ enum numbering_e
    ONCE, TWICE
 }
 
+typedef  int xyz;
+
+typedef bit[8*16:1] rs_demo_string_t;
+
+typedef my_pkg::my_component comp_t;
+
 component x2 {
    resource channel_r {};
    pool [3]  channel_r  channel_p;
