@@ -380,7 +380,7 @@ contexts:
         - include: constraint-declaration
         - include: code
 
-  # B.13 Data Types
+  # B.13 Data Types (include in code)
   # enum
   enum-declaration:
     - match: \b(enum)\s+\b{{valid_name}}\b
