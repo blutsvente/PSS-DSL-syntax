@@ -8,18 +8,19 @@ scope: source.pss
 version: 2
 
 # Syntax for the PSS domain-specific-language
-# Note: Numbered comments refer to chapters in the PSS Specification 2.0+
+# Note: Numbered comments refer to chapters in the PSS Specification 2.0/2.1
 # See also: https://www.sublimetext.com/docs/3/syntax.html and https://www.sublimetext.com/docs/3/scope_naming.html
 # Note to self:  Ctrl+Alt+Shift+P (Windows/Linux) -> scope under caret (MacOS: Ctrl+Shift+P)
 # TODO: #B.12 Template types
 # see other TODOs below
 
 variables:
-  scalar_types: int|bit|string|bool|enum
+  scalar_types: int|bit|string|bool|enum|float32|float64
   collection_types: array|list|map|set
   built_in_types: ({{scalar_types}}|{{collection_types}})
   built_in_constants: null|true|false
-  built_in_functions: message|appendf|error|fatal
+  # note: appendf/outf are deprecated in PSS 2.1
+  built_in_functions: message|appendf|outf|print|format|error|fatal|get_tag
   access: public|protected|private
   attribs: rand|static\sconst|static|const # cannot use \s+ here
   exec_kinds: pre_solve|post_solve|body|pre_body|header|declaration|run_start|run_end|init_down|init_up|init|post_allocate
