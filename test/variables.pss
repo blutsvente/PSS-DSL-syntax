@@ -24,11 +24,14 @@ typedef  int xyz;
 
 typedef bit[8*16:1] rs_demo_string_t;
 
-typedef my_pkg::my_component comp_t;
+typedef my_pkg::foomy_component comp_t;
 
 component x2 {
    resource channel_r {};
    pool [3]  channel_r  channel_p;
+
+   extend enum sml_pkg::sml_cluster_tag_e {l};
+   extend enum sml_pkg::sml_core_tag_e {l_core0};
 
    buffer mem_buffer {
       int x;

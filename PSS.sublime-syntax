@@ -384,10 +384,11 @@ contexts:
   # B.13 Data Types (include in code)
   # enum
   enum-declaration:
-    - match: \b(enum)\s+\b{{valid_name}}\b
+    - match: \b(extend\s*)?(enum)\s+\b{{valid_name}}\b
       captures:
-        1: keyword.declaration.enum.pss
-        2: storage.type.pss
+        1: keyword.declaration.extend
+        2: keyword.declaration.enum.pss
+        3: storage.type.pss
       push: enum-values-declaration
 
   # typedef
