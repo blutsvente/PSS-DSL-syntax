@@ -504,25 +504,27 @@ contexts:
             1: punctuation.section.begin.pss
           set: function-parameters
 
-    - match: \b((?:{{function_qualifier}})\s+)?(function\s+)\b(void\s+)(?:{{valid_name}})
+    - match: \b({{platform_qualifier}}\s+)?((?:{{function_qualifier}})\s+)?(function\s+)\b(void\s+)(?:{{valid_name}})
       captures:
-        1: keyword.declaration.function-qualifer.pss
-        2: keyword.declaration.function.pss
-        3: meta.method.return-type.pss storage.type.pss
-        4: meta.method.identifier.pss entity.name.function.pss
+        1: keyword.declaration.platform_qualifier.pss
+        2: keyword.declaration.function-qualifer.pss
+        3: keyword.declaration.function.pss
+        4: meta.method.return-type.pss storage.type.pss
+        5: meta.method.identifier.pss entity.name.function.pss
       push:
         - match:  '(\()'
           captures:
             1: punctuation.section.begin.pss
           set: function-parameters
 
-    - match: \b((?:{{function_qualifier}})\s+)?(function\s+)(?:{{valid_scalar_type}}\s+)(?:{{valid_name}})
+    - match: \b({{platform_qualifier}}\s+)?((?:{{function_qualifier}})\s+)?(function\s+)(?:{{valid_scalar_type}}\s+)(?:{{valid_name}})
       captures:
-        1: keyword.declaration.function-qualifer.pss
-        2: keyword.declaration.function.pss
-        3: meta.method.return-type.pss storage.type.pss
-        4: meta.method.return-type.pss storage.modifier.range.pss
-        5: meta.method.identifier.pss entity.name.function.pss
+        1: keyword.declaration.platform_qualifier.pss
+        2: keyword.declaration.function-qualifer.pss
+        3: keyword.declaration.function.pss
+        4: meta.method.return-type.pss storage.type.pss
+        5: meta.method.return-type.pss storage.modifier.range.pss
+        6: meta.method.identifier.pss entity.name.function.pss
       push:
         - match: '(\()'
           captures:

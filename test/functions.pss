@@ -13,7 +13,7 @@ package external_functions_pkg {
      return data;
   };
 
-  pure function void no_params()
+  solve pure function void no_params()
   {
     int count = 0;
   };
