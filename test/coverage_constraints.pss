@@ -11,6 +11,11 @@ component foo : my_package {
 
       constraint i>1;
 
+      constraint default compare == true;
+      constraint dir == READ;
+
+      constraint  default disable  compare_c;
+
       // Covergroup declaration
       dynamic constraint foo foreach (i:10)
       {
@@ -35,7 +40,6 @@ component foo : my_package {
       } cg1_inst;
 
       const int pi = 3.141;
-S
    }
 
    struct foo {

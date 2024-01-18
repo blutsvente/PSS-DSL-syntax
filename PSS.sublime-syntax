@@ -478,6 +478,12 @@ contexts:
   # Keep it simple, only match part before block
   constraint-declaration:
     - meta_scope: meta.type.constraint.pss
+    # soft constraint (TODO: disable)
+    - match: \b(constraint\s+)(default\s+)(?:{{valid_name}}\s+)
+      captures:
+        1: keyword.declaration.constraint.pss
+        2: keyword.declaration.constraint-modifier.pss
+        3: entity.name.constraint.pss
     - match: \b(dynamic\s+)?(constraint\s+)(?:{{valid_name}}\s+)
       captures:
         1: keyword.declaration.dynamic.pss
@@ -601,7 +607,7 @@ contexts:
   # B.11 Data Declarations
   member-declaration:
     # Match scalar field members
-    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs}})*(?:{{valid_scalar_type}})\s+(?:{{valid_id}}\s*)(;|\=)'
+    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs}})*(?:{{valid_scalar_type}})\s+(?:{{valid_id}}\s*)(;|\=[^=])'
       captures:
         1: storage.modifier.access.pss
         2: storage.modifier.attribute.pss
@@ -611,7 +617,7 @@ contexts:
         6: punctuation.terminator.pss
 
     # chandle
-    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs_no_rand}})*(chandle)\s+(?:{{valid_id}}\s*)(;|\=)'
+    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs_no_rand}})*(chandle)\s+(?:{{valid_id}}\s*)(;|\=[^=])'
       captures:
         1: storage.modifier.access.pss
         2: storage.modifier.attribute.pss
@@ -620,7 +626,7 @@ contexts:
         5: punctuation.terminator.pss
 
     # ref
-    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs_no_rand}})*(ref)\s+(?:{{valid_id}}\s+)(?:{{valid_id}}\s*)(;|\=)'
+    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs_no_rand}})*(ref)\s+(?:{{valid_id}}\s+)(?:{{valid_id}}\s*)(;|\=[^=])'
       captures:
         1: storage.modifier.access.pss
         2: storage.modifier.attribute.pss
@@ -639,7 +645,7 @@ contexts:
       push: collection-declaration
 
     # Array has alternative syntax name[num-elements], see 8.8.2
-    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs}})*(?:{{valid_scalar_type}})\s+(?:{{valid_id}}\s*)(\[\s*\S+\s*\]\s*)(;|\=)'
+    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs}})*(?:{{valid_scalar_type}})\s+(?:{{valid_id}}\s*)(\[\s*\S+\s*\]\s*)(;|\=[^=])'
       captures:
         1: storage.modifier.access.pss
         2: storage.modifier.attribute.pss
@@ -650,7 +656,7 @@ contexts:
         7: punctuation.terminator.pss
 
     # other (user) types (enum, class)
-    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs}})*(?:{{valid_id}})\s+(?:{{valid_id}}\s*)(;|\=)'
+    - match: '^\s*({{valid_access}}\s+)?({{valid_attribs}})*(?:{{valid_id}})\s+(?:{{valid_id}}\s*)(;|\=[^=])'
       captures:
         1: storage.modifier.access.pss
         2: storage.modifier.attribute.pss
@@ -804,14 +810,14 @@ contexts:
     - scope: keyword.operator.boolean.pss
       match: '(&&|\|\||!)'
 
+    - scope: keyword.operator.comparison.pss
+      match: (==|!=|>|<|===|!===|>=|<=)
+
     - scope: keyword.operator.assignment.pss
       match: '(=|\+=|-=|&=|\|=|>>=|<<=)'
 
     - scope: keyword.operator.constraint.pss
       match: '(->)'
-
-    - scope: keyword.operator.comparison.pss
-      match: (==|!=|>|<|===|!===|>=|<=)
 
     - scope: keyword.operator.arithmetic.pss
       match: (-|\+|\*|/|%|<<|>>|\*\*|\^)
