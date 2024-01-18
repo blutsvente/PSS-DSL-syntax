@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - matches enum extensions
-- improvement matching of constraints
+- improved matching of constraints
 
 ## [1.0.3] - 2023-03-30
 

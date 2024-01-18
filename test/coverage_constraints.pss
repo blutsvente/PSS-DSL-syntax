@@ -14,7 +14,7 @@ component foo : my_package {
       constraint default compare == true;
       constraint dir == READ;
 
-      constraint  default disable  compare_c;
+      constraint default disable compare_c;
 
       // Covergroup declaration
       dynamic constraint foo foreach (i:10)

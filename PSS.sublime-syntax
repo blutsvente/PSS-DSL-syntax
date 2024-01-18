@@ -475,25 +475,27 @@ contexts:
         - include: default-scopes
 
   # B.14 Constraints declaration (appears in struct, action)
-  # Keep it simple, only match part before block
+  # Keep it simple, only match part before identifier+block
   constraint-declaration:
     - meta_scope: meta.type.constraint.pss
-    # soft constraint (TODO: disable)
-    - match: \b(constraint\s+)(default\s+)(?:{{valid_name}}\s+)
+    # (dynamic) (soft) constraint
+    - match: \b(dynamic\s+)?(constraint\s+)(default\s+)?(disable)?
       captures:
-        1: keyword.declaration.constraint.pss
-        2: keyword.declaration.constraint-modifier.pss
-        3: entity.name.constraint.pss
-    - match: \b(dynamic\s+)?(constraint\s+)(?:{{valid_name}}\s+)
-      captures:
-        1: keyword.declaration.dynamic.pss
+        1: keyword.declaration.constraint.modifier.pss
         2: keyword.declaration.constraint.pss
-        3: entity.name.constraint.pss
-    # unnamed constraint
-    - match: \b(dynamic\s+)?(constraint\s+)
-      captures:
-        1: keyword.declaration.dynamic.pss
-        2: keyword.declaration.constraint.pss
+        3: keyword.declaration.constraint.modifier.pss
+        4: keyword.declaration.constraint-modifier.pss
+    # (dynamic) named constraint
+    #- match: \b(dynamic\s+)?(constraint\s+)(?:{{valid_name}}\s+)
+    #  captures:
+    #    1: keyword.declaration.constraint.modifier.pss
+    #    2: keyword.declaration.constraint.pss
+    #    3: entity.name.constraint.pss
+    # (dynamic) unnamed constraint
+    #- match: \b(dynamic\s+)?(constraint\s+)
+    #  captures:
+    #    1: keyword.declaration.constraint.modifier.pss
+    #    2: keyword.declaration.constraint.pss
 
   # B.5 Functions (in package, component)
   function-declaration:
