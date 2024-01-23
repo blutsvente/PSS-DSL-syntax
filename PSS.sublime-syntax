@@ -44,7 +44,7 @@ variables:
   super_spec: \:\s*{{valid_name}}
   scalar_range_modifier: '\bin\s*\[.+?\.\..+?\]'
   scalar_width_modifier: '\[\s*\S+\s*(?:\:\s*0\s*)?\]'
-  valid_scalar_type: ({{scalar_types}})(\s*(?:{{scalar_range_modifier}}|{{scalar_width_modifier}}))?
+  valid_scalar_type: ({{scalar_types}})(\s*(?:{{scalar_width_modifier}})?\s*(?:{{scalar_range_modifier}})?)?
   valid_access: (?:{{access}})
   valid_attribs: (?:(?:{{attribs}})\s+)
   valid_attribs_no_rand: (?:(?:static\s+const|static|const)\s+)

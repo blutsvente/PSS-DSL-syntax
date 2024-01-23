@@ -1,0 +1,128 @@
+
+
+package aes_pkg {
+
+
+	struct aes_seq_item_s {
+		rand string name ;
+		rand int id;
+		rand bit dut_init;
+		rand bit [32] output_reg[4];
+		rand bit [32] data_in [4];
+		rand bit [32] cypher_text [4];
+		rand bit [32] decrypted_text [4];
+
+	}
+
+	// Define the component and actions
+	component aes_ex_c {
+
+
+
+		bit [32] data[4];
+
+		exec init_up{
+
+			data = {3736059565,3131948783,4007508906,3735928559};
+		}
+
+
+		state aes_op_enc_state {
+			bit [32] plain_text [4];
+			bit [32] cypher_text [4];
+		}
+		
+		pool aes_op_enc_state aes_op_enc_state_pool ;
+		bind aes_op_enc_state_pool *;
+
+
+		// Base-action -> This action inherited to other action and exec body is implemented on it
+		abstract action aes_base_a{
+			rand aes_seq_item_s seq_item;
+			bool wait_for_completion = true;
+			rand bit [2] in [0..3] data_index[4] ;
+			bit [32] updated_data_in [4];
+
+			exec run_end {
+				if (wait_for_completion ) {
+					message(LOW, "trans %s returned with status = OK", seq_item.name);
+				}
+				else {
+					message(LOW, "trans %s returned with status != OK", seq_item.name);
+				}
+			}
+		}
+
+		action aes_init_a : aes_base_a{
+
+			constraint seq_c {
+				seq_item.name == "aes_init_vseq";
+				seq_item.dut_init == 1;
+			}
+		}
+
+		action aes_read_status_reg : aes_base_a{
+
+			constraint seq_c {
+				seq_item.name == "aes_read_status_reg";
+				seq_item.dut_init == 0;
+			}
+		}
+
+		action aes_op_enc:aes_base_a{
+
+			rand bit k0[8];
+			rand bit k1[8];
+			rand bit d[4];
+
+			output  aes_op_enc_state aes_op_enc_state_out;
+			
+			constraint seq_c {
+				seq_item.name == "aes_op_enc";
+				seq_item.dut_init == 0;
+
+				//data config
+				foreach(data_index[i]){
+					seq_item.data_in[i] == comp.data[i];
+					d[i] == 1;
+				}
+
+			}
+			
+			exec body {
+				aes_seq_item_s seq_item_out;// this is coming from UVM_sequence 
+				foreach(data_index[i]){aes_op_enc_state_out.cypher_text[i]= seq_item_out.output_reg[i];}
+			}
+
+		}
+
+		action aes_op_dec:aes_base_a{
+
+			rand bit k0[8];
+			rand bit k1[8];
+			rand bit d[4];
+			bit [32] cypher_data[4];
+
+			input aes_op_enc_state aes_op_enc_state_in;
+			
+		  exec post_solve {
+
+				foreach (data_index[i]) seq_item.data_in[i] = aes_op_enc_state_in.cypher_text[i];
+			
+				foreach(data_index[i]){message(LOW, " after post solve Cypher_text_old[%d] reg value =%0x",i,aes_op_enc_state_in.cypher_text[i]);}
+
+			}
+		
+
+			constraint seq_c {
+				seq_item.name == "aes_op_dec";
+				seq_item.dut_init == 0;
+
+			}
+
+		}
+
+	};//aes_c
+}; // aes_pkg
+
+// End

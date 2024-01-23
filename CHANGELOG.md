@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - matches enum extensions
 - improved matching of constraints
+- improved valid_scalar_type regexp
 
 ## [1.0.3] - 2023-03-30
 

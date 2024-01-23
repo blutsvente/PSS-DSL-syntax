@@ -50,11 +50,10 @@ component x2 {
       protected static const int x;
       rand int in [512..2048-1] size ;
       rand video_coding_e encoding ;
-
-      //step #1 b): add the video resolution to the token
       rand video_resolution_e resolution;
 
-
       rand int in [0..4095] addr;
+
+      bit [4] in [0..7] foo;
    }
 }
