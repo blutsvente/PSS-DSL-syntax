@@ -34,10 +34,12 @@ component x2 {
    extend enum sml_pkg::sml_core_tag_e {l_core0};
 
    buffer mem_buffer {
-      int x;
+      int x; // TODO:
+      // @interesting
       bit[31:0] foo = 32'haffe;
       bit[6:0] bin_number = 'b10101;
       bit [ 7 : 0 ] oct_number = 8'o710;
+      //@gallery_path("string_literal")
       bit [5] bxx;
       int hex2 = 0x222_3233;
       int oct2 = 0175;

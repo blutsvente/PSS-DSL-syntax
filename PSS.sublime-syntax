@@ -736,6 +736,10 @@ contexts:
     - meta_include_prototype: false
     - match: \b{{comment_tags}}
       scope: invalid
+    - match: '@(\w+)(\(.*\))?'
+      captures:
+        1: meta.annotation.identifier
+        2: meta.annotation.parameters
     - match: $
       pop: true
 
