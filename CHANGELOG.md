@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - added some PSS 2.1 keywords
 - added matching target/solve qualifier for native PSS functions
+- added annotations
 
 ### Fixed
 - matches enum extensions
@@ -23,7 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - added compile-if and pools scope
 - added typedef
-- added annotations
 
 ## [1.0.2] - 2023-02-17
 
