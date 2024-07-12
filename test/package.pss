@@ -35,6 +35,10 @@ component x1
       activity {
 
       }
+      atomic {
+         a a1;
+         b b1;
+      }
    }
 
    import target C function my_method; // import_function

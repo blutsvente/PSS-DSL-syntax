@@ -33,6 +33,10 @@ component x2 {
    extend enum sml_pkg::sml_cluster_tag_e {l};
    extend enum sml_pkg::sml_core_tag_e {l_core0};
 
+   // TODO: templates
+   rand transparent_addr_claim_s<mem_trait_s> mem_activation_claim;
+   rand list<transparent_addr_claim_s<mem_trait_s>> mem_claims;
+
    buffer mem_buffer {
       int x; // TODO:
       // @interesting

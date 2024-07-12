@@ -7,7 +7,10 @@ component foo : my_package {
       rand int a;
 
       // unnamed constraints
-      constraint { i>1 };
+      constraint {
+         i>1;
+         OutStreamerClippingValueMin in [-32768..32767];
+      };
 
       constraint i>1;
 

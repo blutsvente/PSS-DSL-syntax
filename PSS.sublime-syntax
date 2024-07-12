@@ -280,7 +280,7 @@ contexts:
 
   activity:
     - meta_scope: meta.activity.declaration.pss
-    - match: ^\s*(activity) #\s*(\{)
+    - match: ^\s*(activity|atomic) #\s*(\{)
       captures:
         1: keyword.declaration.activity.pss
         # 2: punctuation.section.begin.pss
